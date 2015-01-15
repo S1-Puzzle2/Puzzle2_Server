@@ -1,15 +1,19 @@
 package at.fhv.puzzle2.server.logic;
 
+import at.fhv.puzzle2.server.ReceivedCommandQueue;
+
 import java.util.Date;
 
 /**
  * Created by sinz on 15.01.15.
  */
-public class Loop implements Runnable {
+public class GameLoop implements Runnable {
+    private ReceivedCommandQueue _commandQueue;
     private Thread _localThread = null;
     private volatile boolean _isRunning = false;
 
-    public Loop() {
+    public GameLoop(ReceivedCommandQueue commandQueue) {
+        _commandQueue = commandQueue;
         _isRunning = true;
 
         _localThread = new Thread(this);
@@ -22,6 +26,8 @@ public class Loop implements Runnable {
 
             try {
                 long startTime = new Date().getTime();
+
+
 
                 //TODO readMessages
                 //TODO increment penalty timer
@@ -40,5 +46,6 @@ public class Loop implements Runnable {
     public void shutdownServer() {
         _isRunning = false;
 
+        _localThread.interrupt();
     }
 }

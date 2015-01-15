@@ -10,12 +10,18 @@ public class Client {
 
     private boolean _isReady = false;
 
+    public Client(ClientType type, CommandConnection connection, String clientID) {
+        _clientType = type;
+        _connection = connection;
+        _clientID = clientID;
+    }
+
     public boolean isReady() {
         return _isReady;
     }
 
-    public void setIsReady(boolean _isReady) {
-        this._isReady = _isReady;
+    public void setIsReady(boolean isReady) {
+        this._isReady = isReady;
     }
 
     public CommandConnection getConnection() {
