@@ -1,4 +1,4 @@
-package at.fhv.puzzle2.server.logic;
+package at.fhv.puzzle2.server.state;
 
 import at.fhv.puzzle2.communication.application.command.AbstractCommand;
 import at.fhv.puzzle2.server.client.ClientManager;

@@ -1,4 +1,4 @@
-package at.fhv.puzzle2.server.logic;
+package at.fhv.puzzle2.server.state;
 
 import at.fhv.puzzle2.communication.application.command.AbstractCommand;
 import at.fhv.puzzle2.communication.application.command.commands.*;
@@ -6,8 +6,6 @@ import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.client.Client;
 import at.fhv.puzzle2.server.client.ClientManager;
 import at.fhv.puzzle2.server.client.ClientType;
-import at.fhv.puzzle2.server.client.Team;
-import org.junit.Before;
 
 import java.util.UUID;
 
