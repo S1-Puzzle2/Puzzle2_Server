@@ -2,11 +2,13 @@ package at.fhv.puzzle2.server;
 
 import at.fhv.puzzle2.communication.CommunicationManager;
 import at.fhv.puzzle2.communication.connection.protocoll.ethernet.tcp.TCPEndpoint;
+import at.fhv.puzzle2.communication.observable.ConnectionObservable;
+import at.fhv.puzzle2.communication.observer.NewConnectionObserver;
 import at.fhv.puzzle2.server.logic.GameLoop;
 
 import java.io.IOException;
 
-public class Main {
+public class Main implements NewConnectionObserver {
     public static void main(String[] args) {
         new Main();
     }
@@ -18,10 +20,14 @@ public class Main {
 
 
             ReceivedCommandQueue recvCommandQueue = new ReceivedCommandQueue();
+            DisconnectedConnectionsQueue disconnectedConnectionsQueue = new DisconnectedConnectionsQueue();
+
             cm.addMessageReceivedObserver(recvCommandQueue);
+            cm.addNewConnectionObserver(this);
+            cm.addConnectionClosedObserver(disconnectedConnectionsQueue);
 
             cm.startListeningForConnections();
-            GameLoop gameLoop = new GameLoop();
+            GameLoop gameLoop = new GameLoop(recvCommandQueue, disconnectedConnectionsQueue);
 
 
             System.out.println("Press any key to exit...");
@@ -31,5 +37,10 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void notify(ConnectionObservable observable) {
+        System.out.println("New connection!!!");
     }
 }

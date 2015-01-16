@@ -20,6 +20,10 @@ public class Client {
         return _isReady;
     }
 
+    public boolean isConnected() {
+        return _connection != null;
+    }
+
     public void setIsReady(boolean isReady) {
         this._isReady = isReady;
     }

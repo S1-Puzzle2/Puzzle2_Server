@@ -3,6 +3,7 @@ package at.fhv.puzzle2.server.client;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class ClientManager {
     private Team _team1;
@@ -24,25 +25,16 @@ public class ClientManager {
         _configurator = configurator;
     }
 
-
-    public Team getFirstTeam() {
-        return _team1;
-    }
-
-    public Team getSecondTeam() {
-        return _team2;
-    }
-
     public boolean areAllReady() {
         return _team1.isTeamReady() && _team2.isTeamReady();
     }
 
     public boolean belongsToAnyTeam(CommandConnection connection) {
-        return _team1.belongsToTeam(connection) || _team2.belongsToTeam(connection);
+        return getTeamOfClient(connection) != null;
     }
 
     public boolean belongsToAnyTeam(String clientID) {
-        return _team1.belongsToTeam(clientID) || _team2.belongsToTeam(clientID);
+        return getTeamOfClient(clientID) != null;
     }
 
     public Team getTeamOfClient(String clientID) {
@@ -51,6 +43,18 @@ public class ClientManager {
         }
 
         if(_team2.belongsToTeam(clientID)) {
+            return _team2;
+        }
+
+        return null;
+    }
+
+    public Team getTeamOfClient(CommandConnection connection) {
+        if(_team1.belongsToTeam(connection)) {
+            return _team1;
+        }
+
+        if(_team2.belongsToTeam(connection)) {
             return _team2;
         }
 
@@ -73,8 +77,57 @@ public class ClientManager {
         return null;
     }
 
+    public String registerNewClient(ClientType type, CommandConnection connection) {
+        if(type == ClientType.Configurator) {
+            if(_configurator == null) {
+                String uuid = UUID.randomUUID().toString();
+                _configurator = new Client(ClientType.Configurator, connection, uuid);
+
+                return uuid;
+            }
+
+            return null;
+        }
+
+        String uuid = null;
+        uuid = _team1.registerNewClient(type, connection);
+
+        if(uuid != null) {
+            return uuid;
+        }
+
+        uuid = _team2.registerNewClient(type, connection);
+
+        return uuid;
+    }
+
+    public boolean registerReconnectedClient(ClientType type, CommandConnection connection, String clientID) {
+        if(type == ClientType.Configurator) {
+            if(_configurator == null) {
+                _configurator = new Client(type, connection, clientID);
+                return true;
+            }
+
+            return false;
+        }
+
+        if(_team1.registerReconnectedClient(type, connection, clientID)) {
+            return true;
+        }
+
+        if(_team2.registerReconnectedClient(type, connection, clientID)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public void clientDisconnected(CommandConnection connection) {
-        _team1.clientDisconnected(connection);
-        _team2.clientDisconnected(connection);
+        if(_configurator.getConnection().equals(connection)) {
+            _configurator = null;
+        } else {
+            _team1.clientDisconnected(connection);
+            _team2.clientDisconnected(connection);
+        }
     }
 }
