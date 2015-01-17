@@ -1,9 +1,9 @@
 package at.fhv.puzzle2.server.client;
 
+import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 
 import java.util.Objects;
-import java.util.UUID;
 
 public class ClientManager {
     private Team _team1;
@@ -33,11 +33,11 @@ public class ClientManager {
         return getTeamOfClient(connection) != null;
     }
 
-    public boolean belongsToAnyTeam(String clientID) {
+    public boolean belongsToAnyTeam(ClientID clientID) {
         return getTeamOfClient(clientID) != null;
     }
 
-    public Team getTeamOfClient(String clientID) {
+    public Team getTeamOfClient(ClientID clientID) {
         if(_team1.belongsToTeam(clientID)) {
             return _team1;
         }
@@ -61,7 +61,7 @@ public class ClientManager {
         return null;
     }
 
-    public Client getClientByID(String clientID) {
+    public Client getClientByID(ClientID clientID) {
         if(_team1.belongsToTeam(clientID)) {
             return _team1.getClientByID(clientID);
         }
@@ -77,31 +77,31 @@ public class ClientManager {
         return null;
     }
 
-    public String registerNewClient(ClientType type, CommandConnection connection) {
+    public ClientID registerNewClient(ClientType type, CommandConnection connection) {
         if(type == ClientType.Configurator) {
             if(_configurator == null) {
-                String uuid = UUID.randomUUID().toString();
-                _configurator = new Client(ClientType.Configurator, connection, uuid);
+                ClientID randomID = ClientID.createRandomClientID();
+                _configurator = new Client(ClientType.Configurator, connection, randomID);
 
-                return uuid;
+                return randomID;
             }
 
             return null;
         }
 
-        String uuid = null;
-        uuid = _team1.registerNewClient(type, connection);
+        ClientID clientID = null;
+        clientID = _team1.registerNewClient(type, connection);
 
-        if(uuid != null) {
-            return uuid;
+        if(clientID != null) {
+            return clientID;
         }
 
-        uuid = _team2.registerNewClient(type, connection);
+        clientID = _team2.registerNewClient(type, connection);
 
-        return uuid;
+        return clientID;
     }
 
-    public boolean registerReconnectedClient(ClientType type, CommandConnection connection, String clientID) {
+    public boolean registerReconnectedClient(ClientType type, CommandConnection connection, ClientID clientID) {
         if(type == ClientType.Configurator) {
             if(_configurator == null) {
                 _configurator = new Client(type, connection, clientID);

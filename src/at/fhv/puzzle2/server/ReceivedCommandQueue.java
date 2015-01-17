@@ -1,6 +1,6 @@
 package at.fhv.puzzle2.server;
 
-import at.fhv.puzzle2.communication.application.command.AbstractCommand;
+import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.observable.CommandReceivedObservable;
 import at.fhv.puzzle2.communication.observer.MessageReceivedObserver;
 
@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ReceivedCommandQueue implements MessageReceivedObserver, Iterator<AbstractCommand> {
-    private BlockingQueue<AbstractCommand> _commandQueue = new LinkedBlockingQueue<>();
+public class ReceivedCommandQueue implements MessageReceivedObserver, Iterator<Command> {
+    private BlockingQueue<Command> _commandQueue = new LinkedBlockingQueue<>();
 
     @Override
     public void messageReceived(CommandReceivedObservable commandReceivedObservable) {
@@ -22,7 +22,7 @@ public class ReceivedCommandQueue implements MessageReceivedObserver, Iterator<A
     }
 
     @Override
-    public AbstractCommand next() {
+    public Command next() {
         return _commandQueue.poll();
     }
 }

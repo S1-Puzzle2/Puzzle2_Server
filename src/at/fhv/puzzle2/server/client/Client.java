@@ -1,16 +1,16 @@
 package at.fhv.puzzle2.server.client;
 
-import at.fhv.puzzle2.communication.application.command.Command;
+import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 
 public class Client {
     private CommandConnection _connection;
-    private String _clientID;
+    private ClientID _clientID;
     private ClientType _clientType;
 
     private boolean _isReady = false;
 
-    public Client(ClientType type, CommandConnection connection, String clientID) {
+    public Client(ClientType type, CommandConnection connection, ClientID clientID) {
         _clientType = type;
         _connection = connection;
         _clientID = clientID;
@@ -40,7 +40,7 @@ public class Client {
         return _clientType;
     }
 
-    public String getClientID() {
+    public ClientID getClientID() {
         return _clientID;
     }
 

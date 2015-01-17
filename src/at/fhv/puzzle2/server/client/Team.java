@@ -1,9 +1,9 @@
 package at.fhv.puzzle2.server.client;
 
+import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 
 import java.util.Objects;
-import java.util.UUID;
 
 public class Team {
     private String _teamName;
@@ -14,7 +14,7 @@ public class Team {
         _teamName = name;
 
         _unityClient = null;
-        _mobileClient = new Client(ClientType.Mobile, null, UUID.randomUUID().toString());
+        _mobileClient = new Client(ClientType.Mobile, null, ClientID.createRandomClientID());
     }
 
     public String getTeamName() {
@@ -25,15 +25,16 @@ public class Team {
      * Registers a new client into the team
      * @param type Type of the client
      * @param connection The Connection of the client
-     * @return Returns the UUID of the client, or null, if he isnt allowed in this team
+     * @return Returns the ClientID, or null, if he isnt allowed in this team
      */
-    public String registerNewClient(ClientType type, CommandConnection connection) {
+    public ClientID registerNewClient(ClientType type, CommandConnection connection) {
         switch (type) {
             case Unity:
                 if(_unityClient == null) {
-                    String randomUUID = UUID.randomUUID().toString();
-                    _unityClient = new Client(type, connection, randomUUID);
-                    return randomUUID;
+                    ClientID newID = ClientID.createRandomClientID();
+                    _unityClient = new Client(type, connection, newID);
+
+                    return newID;
                 }
             case Mobile:
             default:
@@ -49,7 +50,7 @@ public class Team {
      * @return Returns true, if the user has been associated with the connection, false if the clientID is already
      * in use or it doesnt belong to this team
      */
-    public boolean registerReconnectedClient(ClientType type, CommandConnection connection, String clientID) {
+    public boolean registerReconnectedClient(ClientType type, CommandConnection connection, ClientID clientID) {
         switch (type) {
             case Unity:
                 if(_unityClient != null && !_unityClient.isConnected()) {
@@ -70,7 +71,7 @@ public class Team {
         return _mobileClient.isReady() && _unityClient.isReady();
     }
 
-    public boolean belongsToTeam(String clientID) {
+    public boolean belongsToTeam(ClientID clientID) {
         return Objects.equals(_mobileClient.getClientID(), clientID) || Objects.equals(_unityClient.getClientID(), clientID);
     }
 
@@ -78,7 +79,7 @@ public class Team {
         return _mobileClient.getConnection().equals(connection) || _unityClient.getConnection().equals(connection);
     }
 
-    public Client getClientByID(String clientID) {
+    public Client getClientByID(ClientID clientID) {
         if(Objects.equals(_mobileClient.getClientID(), clientID)) {
             return _mobileClient;
         }

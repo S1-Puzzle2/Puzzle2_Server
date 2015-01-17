@@ -1,15 +1,11 @@
 package at.fhv.puzzle2.server.logic;
 
-import at.fhv.puzzle2.communication.application.command.AbstractCommand;
 import at.fhv.puzzle2.server.DisconnectedConnectionsQueue;
 import at.fhv.puzzle2.server.ReceivedCommandQueue;
 import at.fhv.puzzle2.server.client.ClientManager;
 
 import java.util.Date;
 
-/**
- * Created by sinz on 15.01.15.
- */
 public class GameLoop implements Runnable {
     private final int sleepTime = 500;
 

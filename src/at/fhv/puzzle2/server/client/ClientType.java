@@ -1,7 +1,5 @@
 package at.fhv.puzzle2.server.client;
 
-import at.fhv.puzzle2.communication.application.command.commands.UnknownCommand;
-
 import java.util.Objects;
 
 public enum  ClientType {

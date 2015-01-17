@@ -1,14 +1,15 @@
 package at.fhv.puzzle2.server.state;
 
-import at.fhv.puzzle2.communication.application.command.AbstractCommand;
-import at.fhv.puzzle2.communication.application.command.commands.*;
+import at.fhv.puzzle2.communication.ClientID;
+import at.fhv.puzzle2.communication.application.command.Command;
+import at.fhv.puzzle2.communication.application.command.commands.GetGameStateCommand;
+import at.fhv.puzzle2.communication.application.command.commands.GetPuzzlePartCommand;
+import at.fhv.puzzle2.communication.application.command.commands.ReadyCommand;
+import at.fhv.puzzle2.communication.application.command.commands.RegisterCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
-import at.fhv.puzzle2.server.client.Client;
 import at.fhv.puzzle2.server.client.ClientManager;
 import at.fhv.puzzle2.server.client.ClientType;
 import at.fhv.puzzle2.server.logic.Game;
-
-import java.util.UUID;
 
 public class BeforeGameStartState extends GameState {
     private final ClientManager _clientManager;
@@ -19,7 +20,7 @@ public class BeforeGameStartState extends GameState {
     }
 
     @Override
-    public void processCommand(AbstractCommand command) {
+    public void processCommand(Command command) {
         if(command instanceof ReadyCommand) {
              _clientManager.getClientByID(command.getClientID()).setIsReady(true);
 
@@ -30,7 +31,7 @@ public class BeforeGameStartState extends GameState {
         } else if(command instanceof RegisterCommand) {
             RegisterCommand registerCommand = (RegisterCommand) command;
 
-            final CommandConnection clientConnection = registerCommand.getSender();
+            final CommandConnection clientConnection = registerCommand.getConnection();
             ClientType type = ClientType.getClientTypeByString(registerCommand.getClientType());
 
             if(registerCommand.getClientID() != null) {
@@ -39,14 +40,12 @@ public class BeforeGameStartState extends GameState {
                 sendRegisteredCommand(clientConnection, registerCommand.getClientID(), registered);
             }
 
-            final String randomClientID = UUID.randomUUID().toString();
+            ClientID clientID = _clientManager.registerNewClient(type, clientConnection);
 
-            String uuid = _clientManager.registerNewClient(type, registerCommand.getSender());
-
-            if(uuid == null) {
-                sendRegisteredCommand(registerCommand.getSender(), "", false);
+            if(clientID == null) {
+                sendRegisteredCommand(clientConnection, false);
             } else {
-                sendRegisteredCommand(registerCommand.getSender(), uuid, true);
+                sendRegisteredCommand(clientConnection, true);
             }
         }
     }
@@ -57,7 +56,7 @@ public class BeforeGameStartState extends GameState {
     }
 
     @Override
-    public boolean commandAllowedInGameState(AbstractCommand command) {
+    public boolean commandAllowedInGameState(Command command) {
         return isClassOf(command.getClass(),
                 RegisterCommand.class, GetGameStateCommand.class, ReadyCommand.class,
                 GetPuzzlePartCommand.class

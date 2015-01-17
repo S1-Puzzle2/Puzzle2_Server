@@ -1,9 +1,7 @@
 package at.fhv.puzzle2.server.logic;
 
-import at.fhv.puzzle2.communication.application.command.AbstractCommand;
+import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
-import at.fhv.puzzle2.server.DisconnectedConnectionsQueue;
-import at.fhv.puzzle2.server.ReceivedCommandQueue;
 import at.fhv.puzzle2.server.client.ClientManager;
 import at.fhv.puzzle2.server.state.BeforeGameStartState;
 import at.fhv.puzzle2.server.state.GameState;
@@ -24,7 +22,7 @@ public class Game {
         return _currentState;
     }
 
-    public void processCommand(AbstractCommand command) {
+    public void processCommand(Command command) {
         _currentState.processCommand(command);
     }
 
@@ -32,7 +30,7 @@ public class Game {
         _currentState.processDisconnectedClient(connection);
     }
 
-    public boolean commandAllowed(AbstractCommand command) {
+    public boolean commandAllowed(Command command) {
         return _currentState.commandAllowedInGameState(command);
     }
 

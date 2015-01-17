@@ -3,7 +3,6 @@ package at.fhv.puzzle2.server;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.communication.observable.ConnectionObservable;
 import at.fhv.puzzle2.communication.observer.ClosedConnectionObserver;
-import at.fhv.puzzle2.communication.observer.ConnectionObserver;
 
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
