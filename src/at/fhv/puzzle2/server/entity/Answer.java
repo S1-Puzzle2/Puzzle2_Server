@@ -1,4 +1,4 @@
-package at.fhv.puzzle2.server.database.entity;
+package at.fhv.puzzle2.server.entity;
 
 public class Answer {
     Integer _id;
@@ -19,11 +19,15 @@ public class Answer {
         return _text;
     }
 
-    public Integer getId() {
+    public Integer getID() {
         return _id;
     }
 
     public boolean isCorrect() {
         return _isCorrect;
+    }
+
+    public void setID(int id) {
+        _id = id;
     }
 }

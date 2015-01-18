@@ -1,4 +1,4 @@
-package at.fhv.puzzle2.server.database.entity;
+package at.fhv.puzzle2.server.entity;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class Puzzle {
         this(null, name);
     }
 
-    public Integer getId() {
+    public Integer getID() {
         return _id;
     }
 
@@ -32,5 +32,13 @@ public class Puzzle {
 
     public void addPuzzlePart(PuzzlePart part) {
         _partsList.add(part);
+    }
+
+    public void setPuzzlePartList(List<PuzzlePart> partList) {
+        _partsList = partList;
+    }
+
+    public void setID(int id) {
+        this._id = id;
     }
 }

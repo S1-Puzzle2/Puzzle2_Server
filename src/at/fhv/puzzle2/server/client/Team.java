@@ -2,7 +2,12 @@ package at.fhv.puzzle2.server.client;
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
+import at.fhv.puzzle2.server.entity.Puzzle;
+import at.fhv.puzzle2.server.entity.Question;
+import at.fhv.puzzle2.server.logic.manager.PuzzleManager;
+import at.fhv.puzzle2.server.logic.manager.QuestionManager;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Team {
@@ -10,11 +15,17 @@ public class Team {
     private Client _unityClient;
     private Client _mobileClient;
 
+    private QuestionManager _questionManager;
+    private PuzzleManager _puzzleManager;
+
     public Team(String name) {
         _teamName = name;
 
         _unityClient = null;
         _mobileClient = new Client(ClientType.Mobile, null, ClientID.createRandomClientID());
+
+        _questionManager = new QuestionManager();
+        _puzzleManager = new PuzzleManager();
     }
 
     public String getTeamName() {
@@ -72,7 +83,8 @@ public class Team {
     }
 
     public boolean belongsToTeam(ClientID clientID) {
-        return Objects.equals(_mobileClient.getClientID(), clientID) || Objects.equals(_unityClient.getClientID(), clientID);
+        return Objects.equals(_mobileClient.getClientID(), clientID) ||
+                Objects.equals(_unityClient.getClientID(), clientID);
     }
 
     public boolean belongsToTeam(CommandConnection connection) {
@@ -101,5 +113,21 @@ public class Team {
             _unityClient.setConnection(null);
             _unityClient.setIsReady(false);
         }
+    }
+
+    public void setPuzzle(Puzzle puzzle) {
+        _puzzleManager.setPuzzle(puzzle);
+    }
+
+    public void setQuestionList(List<Question> questionList) {
+        _questionManager.setQuestionList(questionList);
+    }
+
+    public boolean questionsAvailable() {
+        return _questionManager.questionsAvailable();
+    }
+
+    public boolean puzzlePartsToFindAvailable() {
+        return _puzzleManager.partsAvailable();
     }
 }

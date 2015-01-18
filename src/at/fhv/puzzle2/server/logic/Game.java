@@ -3,12 +3,14 @@ package at.fhv.puzzle2.server.logic;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.client.ClientManager;
+import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.state.BeforeGameStartState;
 import at.fhv.puzzle2.server.state.GameState;
 
 public class Game {
     GameState _currentState;
     private ClientManager _clientManager;
+    private Puzzle _puzzle = null;
 
     public Game(ClientManager clientManager) {
         _currentState = new BeforeGameStartState(clientManager, this);
@@ -36,5 +38,13 @@ public class Game {
 
     public void timeElapsed(int time) {
 
+    }
+
+    public Puzzle getPuzzle() {
+        return _puzzle;
+    }
+
+    public void setPuzzle(Puzzle puzzle) {
+        _puzzle = puzzle;
     }
 }

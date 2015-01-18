@@ -1,4 +1,4 @@
-package at.fhv.puzzle2.server.database.entity;
+package at.fhv.puzzle2.server.entity;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -19,8 +19,12 @@ public class Question {
         this(null, text);
     }
 
-    public Integer getId() {
+    public Integer getID() {
         return _id;
+    }
+
+    public void setID(Integer id) {
+        _id = id;
     }
 
     public String getText() {
@@ -31,17 +35,11 @@ public class Question {
         return _answerList;
     }
 
-    public List<Answer> getShuffledAnswerList() {
+    public void shuffleAnswers() {
         long seed = System.nanoTime();
 
-        List<Answer> shuffledList = new LinkedList<>();
-
-        Collections.copy(shuffledList, _answerList);
-
-        Collections.shuffle(shuffledList, new Random(seed));
-        Collections.shuffle(shuffledList, new Random(seed));
-
-        return shuffledList;
+        Collections.shuffle(_answerList, new Random(seed));
+        Collections.shuffle(_answerList, new Random(seed));
     }
 
     public void addAnswer(Answer answer) {
