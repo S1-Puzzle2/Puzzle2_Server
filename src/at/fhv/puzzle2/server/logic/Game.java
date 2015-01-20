@@ -27,7 +27,7 @@ public class Game {
     }
 
     public void processCommand(Command command) {
-        System.out.println("Processing command " + command.getCommandType().getTypeString());
+        System.out.println("Processing command " + command.getCommandType());
         if(_currentState.commandAllowedInGameState(command)) {
             _currentState.processCommand(command);
         } else {
