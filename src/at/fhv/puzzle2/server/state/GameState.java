@@ -5,6 +5,7 @@ import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.RegisteredCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.logic.Game;
+import at.fhv.puzzle2.server.util.CommandSender;
 
 public abstract class GameState {
     private Game _game;
@@ -17,9 +18,9 @@ public abstract class GameState {
     public abstract void processDisconnectedClient(CommandConnection connection);
     public abstract boolean commandAllowedInGameState(Command command);
 
-    protected boolean isClassOf(Class<?> commandClass, Class<?>... classes) {
+    protected boolean isClassOf(Object commandClass, Class<?>... classes) {
         for(Class tmpClass : classes) {
-            if(commandClass.isInstance(tmpClass)) {
+            if(tmpClass.isInstance(commandClass)) {
                 return true;
             }
         }
@@ -31,14 +32,10 @@ public abstract class GameState {
         RegisteredCommand registeredCommand = new RegisteredCommand(clientID);
         registeredCommand.setRegistered(isRegistered);
 
-        sendCommandInThread(connection, registeredCommand);
+        CommandSender.sendCommandInThread(connection, registeredCommand);
     }
 
     protected void sendRegisteredCommand(CommandConnection connection, boolean isRegistered) {
         sendRegisteredCommand(connection, null, isRegistered);
-    }
-
-    protected void sendCommandInThread(final CommandConnection connection, final Command command) {
-        new Thread(() -> connection.sendCommand(command));
     }
 }

@@ -17,7 +17,7 @@ public class QuestionDbController extends DbController {
 
     /**
      * Stores a question inside the database and sets the ID of the question automatically
-     * @param question Question The question to store
+     * @param question ShowQuestion The question to store
      * @throws SQLException
      */
     public void persistQuestion(Question question) throws SQLException {

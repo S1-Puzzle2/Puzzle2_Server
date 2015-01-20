@@ -1,10 +1,14 @@
 package at.fhv.puzzle2.server;
 
+import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.CommunicationManager;
+import at.fhv.puzzle2.communication.application.command.commands.RegisterCommand;
 import at.fhv.puzzle2.communication.connection.protocoll.ethernet.tcp.TCPEndpoint;
 import at.fhv.puzzle2.communication.observable.ConnectionObservable;
 import at.fhv.puzzle2.communication.observer.NewConnectionObserver;
 import at.fhv.puzzle2.server.logic.GameLoop;
+import at.fhv.puzzle2.server.state.BeforeGameStartState;
+import at.fhv.puzzle2.server.state.GameState;
 
 import java.io.IOException;
 

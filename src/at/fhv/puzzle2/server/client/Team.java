@@ -18,14 +18,14 @@ public class Team {
     private QuestionManager _questionManager;
     private PuzzleManager _puzzleManager;
 
-    public Team(String name) {
+    public Team(String name/*, QuestionManager questionManager, PuzzleManager puzzleManager*/) {
         _teamName = name;
 
         _unityClient = null;
         _mobileClient = new Client(ClientType.Mobile, null, ClientID.createRandomClientID());
 
-        _questionManager = new QuestionManager();
-        _puzzleManager = new PuzzleManager();
+        /*_questionManager = questionManager;
+        _puzzleManager = puzzleManager;*/
     }
 
     public String getTeamName() {
@@ -46,8 +46,13 @@ public class Team {
                     _unityClient = new Client(type, connection, newID);
 
                     return newID;
+                } else if(!_unityClient.isConnected()) {
+                    //If unity disconnected, we just asign the new connection
+                    ClientID clientID = _unityClient.getClientID();
+                    _unityClient.setConnection(connection);
+
+                    return clientID;
                 }
-            case Mobile:
             default:
                 return null;
         }
@@ -64,14 +69,15 @@ public class Team {
     public boolean registerReconnectedClient(ClientType type, CommandConnection connection, ClientID clientID) {
         switch (type) {
             case Unity:
-                if(_unityClient != null && !_unityClient.isConnected()) {
+                if(_unityClient != null && !_unityClient.isConnected() && Objects.equals(_unityClient.getClientID(), clientID)) {
                     _unityClient.setConnection(connection);
                     return true;
                 }
                 return false;
             case Mobile:
-                if(_mobileClient != null && !_mobileClient.isConnected()) {
+                if(_mobileClient != null && !_mobileClient.isConnected() && Objects.equals(_mobileClient.getClientID(), clientID)) {
                     _mobileClient.setConnection(connection);
+                    return true;
                 }
             default:
                 return false;
@@ -104,12 +110,12 @@ public class Team {
     }
 
     public void clientDisconnected(CommandConnection connection) {
-        if(_mobileClient.getConnection().equals(connection)) {
+        if(_mobileClient != null && Objects.equals(_mobileClient.getConnection(), connection)) {
             _mobileClient.setConnection(null);
             _mobileClient.setIsReady(false);
         }
 
-        if(_unityClient.getConnection().equals(connection)) {
+        if(_unityClient != null && Objects.equals(_unityClient.getConnection(), connection)) {
             _unityClient.setConnection(null);
             _unityClient.setIsReady(false);
         }
