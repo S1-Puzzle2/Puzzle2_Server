@@ -3,7 +3,6 @@ package at.fhv.puzzle2.server.logic;
 import at.fhv.puzzle2.server.DisconnectedConnectionsQueue;
 import at.fhv.puzzle2.server.ReceivedCommandQueue;
 import at.fhv.puzzle2.server.client.ClientManager;
-import at.fhv.puzzle2.server.client.Team;
 
 import java.util.Date;
 
@@ -23,7 +22,7 @@ public class GameLoop implements Runnable {
 
         _isRunning = true;
 
-        _game = new Game(new ClientManager(new Team("Team1"), new Team("Team2")));
+        _game = new Game(new ClientManager());
 
         _localThread = new Thread(this);
         _localThread.start();

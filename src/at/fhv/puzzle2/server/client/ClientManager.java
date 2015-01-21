@@ -6,14 +6,14 @@ import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import java.util.Objects;
 
 public class ClientManager {
-    private Team _firstTeam;
-    private Team _secondTeam;
+    private Team _team1;
+    private Team _team2;
 
     private Client _configurator;
 
-    public ClientManager(Team firstTeam, Team secondTeam) {
-        _firstTeam = firstTeam;
-        _secondTeam = secondTeam;
+    public ClientManager() {
+        _team1 = new Team("Team1");
+        _team2 = new Team("Team2");
     }
 
 
@@ -26,7 +26,7 @@ public class ClientManager {
     }
 
     public boolean areAllReady() {
-        return _firstTeam.isTeamReady() && _secondTeam.isTeamReady();
+        return _team1.isTeamReady() && _team2.isTeamReady();
     }
 
     public boolean belongsToAnyTeam(CommandConnection connection) {
@@ -38,36 +38,36 @@ public class ClientManager {
     }
 
     public Team getTeamOfClient(ClientID clientID) {
-        if(_firstTeam.belongsToTeam(clientID)) {
-            return _firstTeam;
+        if(_team1.belongsToTeam(clientID)) {
+            return _team1;
         }
 
-        if(_secondTeam.belongsToTeam(clientID)) {
-            return _secondTeam;
+        if(_team2.belongsToTeam(clientID)) {
+            return _team2;
         }
 
         return null;
     }
 
     public Team getTeamOfClient(CommandConnection connection) {
-        if(_firstTeam.belongsToTeam(connection)) {
-            return _firstTeam;
+        if(_team1.belongsToTeam(connection)) {
+            return _team1;
         }
 
-        if(_secondTeam.belongsToTeam(connection)) {
-            return _secondTeam;
+        if(_team2.belongsToTeam(connection)) {
+            return _team2;
         }
 
         return null;
     }
 
     public Client getClientByID(ClientID clientID) {
-        if(_firstTeam.belongsToTeam(clientID)) {
-            return _firstTeam.getClientByID(clientID);
+        if(_team1.belongsToTeam(clientID)) {
+            return _team1.getClientByID(clientID);
         }
 
-        if(_secondTeam.belongsToTeam(clientID)) {
-            return _secondTeam.getClientByID(clientID);
+        if(_team2.belongsToTeam(clientID)) {
+            return _team2.getClientByID(clientID);
         }
 
         if(Objects.equals(_configurator.getClientID(), clientID)) {
@@ -90,13 +90,13 @@ public class ClientManager {
         }
 
         ClientID clientID = null;
-        clientID = _firstTeam.registerNewClient(type, connection);
+        clientID = _team1.registerNewClient(type, connection);
 
         if(clientID != null) {
             return clientID;
         }
 
-        clientID = _secondTeam.registerNewClient(type, connection);
+        clientID = _team2.registerNewClient(type, connection);
 
         return clientID;
     }
@@ -111,11 +111,11 @@ public class ClientManager {
             return false;
         }
 
-        if(_firstTeam.registerReconnectedClient(type, connection, clientID)) {
+        if(_team1.registerReconnectedClient(type, connection, clientID)) {
             return true;
         }
 
-        if(_secondTeam.registerReconnectedClient(type, connection, clientID)) {
+        if(_team2.registerReconnectedClient(type, connection, clientID)) {
             return true;
         }
 
@@ -123,11 +123,11 @@ public class ClientManager {
     }
 
     public void clientDisconnected(CommandConnection connection) {
-        if(_configurator != null && _configurator.getConnection().equals(connection)) {
+        if(_configurator.getConnection().equals(connection)) {
             _configurator = null;
         } else {
-            _firstTeam.clientDisconnected(connection);
-            _secondTeam.clientDisconnected(connection);
+            _team1.clientDisconnected(connection);
+            _team2.clientDisconnected(connection);
         }
     }
 }

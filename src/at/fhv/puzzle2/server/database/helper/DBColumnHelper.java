@@ -12,7 +12,7 @@ public class DBColumnHelper {
     public static final String PART_IMAGE = "image";
     public static final String PART_PUZZLE_REF = "puzzleREF";
 
-    //ShowQuestion table columns
+    //Question table columns
     public static final String QUESTION_TEXT = "text";
 
     //Answer table columns

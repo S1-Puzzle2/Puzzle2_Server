@@ -45,7 +45,7 @@ public class BeforeGameStartState extends GameState {
             if(clientID == null) {
                 sendRegisteredCommand(clientConnection, false);
             } else {
-                sendRegisteredCommand(clientConnection, clientID, true);
+                sendRegisteredCommand(clientConnection, true);
             }
         }
     }
@@ -57,7 +57,7 @@ public class BeforeGameStartState extends GameState {
 
     @Override
     public boolean commandAllowedInGameState(Command command) {
-        return isClassOf(command,
+        return isClassOf(command.getClass(),
                 RegisterCommand.class, GetGameStateCommand.class, ReadyCommand.class,
                 GetPuzzlePartCommand.class
         );
