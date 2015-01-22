@@ -11,8 +11,11 @@ import at.fhv.puzzle2.server.entity.Question;
 public class AnswerQuestionState extends ClientState {
     private Question _question;
 
-    public AnswerQuestionState(Client client, Question question) {
+    public AnswerQuestionState(Client client) {
         super(client);
+    }
+
+    public void setQuestion(Question question) {
         _question = question;
     }
 

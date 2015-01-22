@@ -1,13 +1,18 @@
-package at.fhv.puzzle2.server.client;
+package at.fhv.puzzle2.server.team;
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
-import at.fhv.puzzle2.server.client.state.NotConnectedCientState;
+import at.fhv.puzzle2.server.client.Client;
+import at.fhv.puzzle2.server.client.ClientType;
+import at.fhv.puzzle2.server.client.MobileClient;
+import at.fhv.puzzle2.server.client.UnityClient;
+import at.fhv.puzzle2.server.client.state.NotConnectedClientState;
 import at.fhv.puzzle2.server.client.state.ReadyClientState;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.entity.Question;
 import at.fhv.puzzle2.server.logic.manager.PuzzleManager;
 import at.fhv.puzzle2.server.logic.manager.QuestionManager;
+import at.fhv.puzzle2.server.team.state.TeamState;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -24,11 +29,10 @@ public class Team {
     public Team(String name) {
         _teamName = name;
 
+
+
         _unityClient = null;
         _mobileClient = new MobileClient(null, ClientID.createRandomClientID());
-
-        _questionManager = new QuestionManager();
-        _puzzleManager = new PuzzleManager();
     }
 
     public String getTeamName() {
@@ -73,21 +77,23 @@ public class Team {
                 }
                 return false;
             case Mobile:
-                if(_mobileClient != null && !_mobileClient.isConnected()) {
+                _mobileClient = new MobileClient(connection, clientID);
+                /*if(_mobileClient != null && !_mobileClient.isConnected()) {
                     _mobileClient.setConnection(connection);
-                }
+                }*/
+                return true;
             default:
                 return false;
         }
     }
 
     public boolean isTeamReady() {
-        return _mobileClient.getState() instanceof ReadyClientState && _unityClient.getState() instanceof ReadyClientState;
+        return _mobileClient.isReady() && _unityClient.isReady();
     }
 
     public boolean belongsToTeam(ClientID clientID) {
-        return Objects.equals(_mobileClient.getClientID(), clientID) ||
-                Objects.equals(_unityClient.getClientID(), clientID);
+        return (_mobileClient != null && Objects.equals(_mobileClient.getClientID(), clientID)) ||
+                (_unityClient != null && Objects.equals(_unityClient.getClientID(), clientID));
     }
 
     public boolean belongsToTeam(CommandConnection connection) {
@@ -107,13 +113,13 @@ public class Team {
     }
 
     public void clientDisconnected(CommandConnection connection) {
-        if(_mobileClient != null && Objects.equals(_mobileClient.getConnection(),connection)) {
-            _mobileClient.swapClientState(new NotConnectedCientState(_mobileClient), true);
+        if(_mobileClient != null && Objects.equals(_mobileClient.getConnection(), connection)) {
+            _mobileClient.swapClientState(new NotConnectedClientState(_mobileClient), true);
         }
 
         if(_unityClient != null && Objects.equals(_unityClient.getConnection(), connection)) {
             _unityClient.setConnection(null);
-            _unityClient.swapClientState(new NotConnectedCientState(_unityClient), true);
+            _unityClient.swapClientState(new NotConnectedClientState(_unityClient), true);
         }
     }
 
@@ -132,14 +138,6 @@ public class Team {
 
     public void setPuzzle(Puzzle puzzle) {
         _puzzleManager.setPuzzle(puzzle);
-    }
-
-    public void setQuestionList(List<Question> questionList) {
-        _questionManager.setQuestionList(questionList);
-    }
-
-    public boolean questionsAvailable() {
-        return _questionManager.questionsAvailable();
     }
 
     public boolean puzzlePartsToFindAvailable() {

@@ -2,6 +2,7 @@ package at.fhv.puzzle2.server.client;
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
+import at.fhv.puzzle2.server.team.Team;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -83,7 +84,7 @@ public class ClientManager {
         if(type == ClientType.Configurator) {
             if(_configurator == null) {
                 ClientID randomID = ClientID.createRandomClientID();
-                _configurator = new Client(connection, randomID);
+                _configurator = new ConfiguratorClient(connection, randomID);
 
                 return randomID;
             }
@@ -106,7 +107,7 @@ public class ClientManager {
     public boolean registerReconnectedClient(ClientType type, CommandConnection connection, ClientID clientID) {
         if(type == ClientType.Configurator) {
             if(_configurator == null) {
-                _configurator = new Client(connection, clientID);
+                _configurator = new ConfiguratorClient(connection, clientID);
                 return true;
             }
 

@@ -11,7 +11,7 @@ public class SendQueue {
     private List<QueuedCommand> _commandQueue;
 
     public SendQueue() {
-        _commandQueue = Collections.synchronizedList(new LinkedList<QueuedCommand>());
+        _commandQueue = Collections.synchronizedList(new LinkedList<>());
     }
 
     public void tick(long timeElapsed) {

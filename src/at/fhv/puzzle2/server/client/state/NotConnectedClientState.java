@@ -9,8 +9,8 @@ import at.fhv.puzzle2.server.client.UnityClient;
 
 import java.util.Objects;
 
-public class NotConnectedCientState extends ClientState {
-    public NotConnectedCientState(Client client) {
+public class NotConnectedClientState extends ClientState {
+    public NotConnectedClientState(Client client) {
         super(client);
     }
 
