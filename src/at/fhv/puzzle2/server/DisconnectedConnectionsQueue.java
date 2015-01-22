@@ -6,9 +6,10 @@ import at.fhv.puzzle2.communication.observer.ClosedConnectionObserver;
 
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class DisconnectedConnectionsQueue implements ClosedConnectionObserver, Iterator<CommandConnection> {
-    private BlockingQueue<CommandConnection> _closedConnectionQueue;
+    private BlockingQueue<CommandConnection> _closedConnectionQueue = new LinkedBlockingQueue<>();
 
     @Override
     public void notify(ConnectionObservable observable) {

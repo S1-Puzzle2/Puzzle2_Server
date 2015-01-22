@@ -2,6 +2,7 @@ package at.fhv.puzzle2.server.logic;
 
 import at.fhv.puzzle2.server.DisconnectedConnectionsQueue;
 import at.fhv.puzzle2.server.ReceivedCommandQueue;
+import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.client.ClientManager;
 
 import java.util.Date;
@@ -12,6 +13,8 @@ public class GameLoop implements Runnable {
     private ReceivedCommandQueue _commandQueue;
     private DisconnectedConnectionsQueue _disconnectedQueue;
 
+    private SendQueue _sendQueue;
+
     private Game _game;
     private Thread _localThread = null;
     private volatile boolean _isRunning = false;
@@ -19,6 +22,7 @@ public class GameLoop implements Runnable {
     public GameLoop(ReceivedCommandQueue commandQueue, DisconnectedConnectionsQueue disconnectedQueue) {
         _commandQueue = commandQueue;
         _disconnectedQueue = disconnectedQueue;
+        _sendQueue = SendQueue.getInstance();
 
         _isRunning = true;
 
@@ -46,9 +50,11 @@ public class GameLoop implements Runnable {
                 long diffTime = new Date().getTime() - startTime;
                 if(sleepTime - diffTime > 0) {
                     Thread.sleep(sleepTime - diffTime);
+                    _sendQueue.tick(sleepTime);
+                } else {
+                    _sendQueue.tick(sleepTime + diffTime);
                 }
 
-                _game.timeElapsed(sleepTime);
             } catch (InterruptedException e) {
                 //do nothing here
             }

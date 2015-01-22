@@ -2,30 +2,30 @@ package at.fhv.puzzle2.server.client;
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
+import at.fhv.puzzle2.server.client.state.ClientState;
+import at.fhv.puzzle2.server.client.state.NotConnectedCientState;
+
+import java.util.Stack;
 
 public class Client {
     private CommandConnection _connection;
     private ClientID _clientID;
-    private ClientType _clientType;
 
-    private boolean _isReady = false;
+    private ClientState _currentState;
 
-    public Client(ClientType type, CommandConnection connection, ClientID clientID) {
-        _clientType = type;
+    private Stack<ClientState> _stateStack;
+
+
+    public Client(CommandConnection connection, ClientID clientID) {
         _connection = connection;
         _clientID = clientID;
-    }
 
-    public boolean isReady() {
-        return _isReady;
+        _currentState = new NotConnectedCientState(this);
+        _stateStack = new Stack<>();
     }
 
     public boolean isConnected() {
         return _connection != null;
-    }
-
-    public void setIsReady(boolean isReady) {
-        this._isReady = isReady;
     }
 
     public CommandConnection getConnection() {
@@ -36,12 +36,27 @@ public class Client {
         _connection = connection;
     }
 
-    public ClientType getClientType() {
-        return _clientType;
-    }
-
     public ClientID getClientID() {
         return _clientID;
     }
 
+    public void swapClientState(ClientState state, boolean storeLastState) {
+        if(storeLastState) {
+            _stateStack.push(_currentState);
+        }
+
+        _currentState = state;
+    }
+
+    public ClientState getState() {
+        return _currentState;
+    }
+
+    public void swapClientState(ClientState state) {
+        swapClientState(state, false);
+    }
+
+    public void swapToLastState() {
+        _currentState = _stateStack.pop();
+    }
 }

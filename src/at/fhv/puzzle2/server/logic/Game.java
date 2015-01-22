@@ -13,7 +13,7 @@ public class Game {
     private Puzzle _puzzle = null;
 
     public Game(ClientManager clientManager) {
-        _currentState = new BeforeGameStartState(clientManager, this);
+        _currentState = new BeforeGameStartState(this, clientManager);
     }
 
     public void setGameState(GameState state) {
@@ -34,10 +34,6 @@ public class Game {
 
     public boolean commandAllowed(Command command) {
         return _currentState.commandAllowedInGameState(command);
-    }
-
-    public void timeElapsed(int time) {
-
     }
 
     public Puzzle getPuzzle() {

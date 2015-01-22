@@ -35,6 +35,10 @@ public class Question {
         return _answerList;
     }
 
+    public Answer getAnswerByIndex(int index) {
+        return _answerList.get(index);
+    }
+
     public void shuffleAnswers() {
         long seed = System.nanoTime();
 

@@ -19,14 +19,8 @@ public class Main implements NewConnectionObserver {
     }
 
     public Main() {
-        String appMsg = "{\"clientID\":null,\"msgType\":\"REGISTER\",\"msgData\":{\"clientType\":\"Unity\"}}";
-
-        Command command = CommandFactory.parseCommand(new ApplicationMessage(appMsg));
-
-        System.out.println("Yay!");
-
-        //try {
-            /*CommunicationManager cm = new CommunicationManager("PUZZLE2");
+        try {
+            CommunicationManager cm = new CommunicationManager("PUZZLE2");
             cm.addConnectionListener(new TCPEndpoint("127.0.0.1", 4711));
 
 
@@ -44,10 +38,12 @@ public class Main implements NewConnectionObserver {
             System.out.println("Press any key to exit...");
             System.in.read();
 
+            gameLoop.shutdownServer();
+
             cm.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     @Override

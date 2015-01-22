@@ -2,27 +2,35 @@ package at.fhv.puzzle2.server.state;
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
-import at.fhv.puzzle2.communication.application.command.commands.GetGameStateCommand;
-import at.fhv.puzzle2.communication.application.command.commands.GetPuzzlePartCommand;
-import at.fhv.puzzle2.communication.application.command.commands.ReadyCommand;
-import at.fhv.puzzle2.communication.application.command.commands.RegisterCommand;
+import at.fhv.puzzle2.communication.application.command.commands.*;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
+import at.fhv.puzzle2.server.QueuedCommand;
+import at.fhv.puzzle2.server.SendQueue;
+import at.fhv.puzzle2.server.client.Client;
 import at.fhv.puzzle2.server.client.ClientManager;
 import at.fhv.puzzle2.server.client.ClientType;
+import at.fhv.puzzle2.server.client.Team;
+import at.fhv.puzzle2.server.client.state.ReadyClientState;
+import at.fhv.puzzle2.server.entity.PuzzlePart;
 import at.fhv.puzzle2.server.logic.Game;
 
-public class BeforeGameStartState extends GameState {
-    private final ClientManager _clientManager;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-    public BeforeGameStartState(ClientManager clientManager, Game game) {
-        super(game);
-        _clientManager = clientManager;
+import static java.util.stream.Collectors.toCollection;
+
+public class BeforeGameStartState extends GameState {
+    public BeforeGameStartState(Game game, ClientManager clientManager) {
+        super(game, clientManager);
     }
 
     @Override
     public void processCommand(Command command) {
         if(command instanceof ReadyCommand) {
-             _clientManager.getClientByID(command.getClientID()).setIsReady(true);
+            Client client = _clientManager.getClientByID(command.getClientID());
+             client.swapClientState(new ReadyClientState(client));
 
             if(_clientManager.areAllReady()) {
                 //TODO we should switch the GameState now and send GameStart commands
@@ -45,8 +53,27 @@ public class BeforeGameStartState extends GameState {
             if(clientID == null) {
                 sendRegisteredCommand(clientConnection, false);
             } else {
-                sendRegisteredCommand(clientConnection, true);
+                sendRegisteredCommand(clientConnection, clientID, true);
             }
+        } else if(command instanceof GetGameStateCommand) {
+            GameStateCommand gameStateCommand = new GameStateCommand(command.getClientID());
+
+            Team team = _clientManager.getTeamOfClient(command.getClientID());
+
+            if(team != null) {
+                gameStateCommand.setTeamName(team.getTeamName());
+            }
+
+
+            if(_game.getPuzzle() != null) {
+                gameStateCommand.setPuzzleName(_game.getPuzzle().getName());
+
+                List<Integer> idList = _game.getPuzzle().getPartsList().stream().mapToInt(PuzzlePart::getID).boxed().collect(toCollection(LinkedList::new));
+
+                gameStateCommand.setPartsList(idList);
+            }
+
+            SendQueue.getInstance().addCommandToSend(gameStateCommand);
         }
     }
 

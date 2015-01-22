@@ -2,11 +2,14 @@ package at.fhv.puzzle2.server.client;
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
+import at.fhv.puzzle2.server.client.state.NotConnectedCientState;
+import at.fhv.puzzle2.server.client.state.ReadyClientState;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.entity.Question;
 import at.fhv.puzzle2.server.logic.manager.PuzzleManager;
 import at.fhv.puzzle2.server.logic.manager.QuestionManager;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -79,7 +82,7 @@ public class Team {
     }
 
     public boolean isTeamReady() {
-        return _mobileClient.isReady() && _unityClient.isReady();
+        return _mobileClient.getState() instanceof ReadyClientState && _unityClient.getState() instanceof ReadyClientState;
     }
 
     public boolean belongsToTeam(ClientID clientID) {
@@ -104,15 +107,27 @@ public class Team {
     }
 
     public void clientDisconnected(CommandConnection connection) {
-        if(_mobileClient.getConnection().equals(connection)) {
-            _mobileClient.setConnection(null);
-            _mobileClient.setIsReady(false);
+        if(_mobileClient != null && Objects.equals(_mobileClient.getConnection(),connection)) {
+            _mobileClient.swapClientState(new NotConnectedCientState(_mobileClient), true);
         }
 
-        if(_unityClient.getConnection().equals(connection)) {
+        if(_unityClient != null && Objects.equals(_unityClient.getConnection(), connection)) {
             _unityClient.setConnection(null);
-            _unityClient.setIsReady(false);
+            _unityClient.swapClientState(new NotConnectedCientState(_unityClient), true);
         }
+    }
+
+    public List<CommandConnection> getConnections() {
+        List<CommandConnection> connectionList = new LinkedList<>();
+        if(_unityClient.isConnected()) {
+            connectionList.add(_unityClient.getConnection());
+        }
+
+        if(_mobileClient.isConnected()) {
+            connectionList.add(_mobileClient.getConnection());
+        }
+
+        return connectionList;
     }
 
     public void setPuzzle(Puzzle puzzle) {

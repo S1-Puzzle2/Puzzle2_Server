@@ -3,6 +3,8 @@ package at.fhv.puzzle2.server.client;
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 public class ClientManager {
@@ -81,7 +83,7 @@ public class ClientManager {
         if(type == ClientType.Configurator) {
             if(_configurator == null) {
                 ClientID randomID = ClientID.createRandomClientID();
-                _configurator = new Client(ClientType.Configurator, connection, randomID);
+                _configurator = new Client(connection, randomID);
 
                 return randomID;
             }
@@ -104,7 +106,7 @@ public class ClientManager {
     public boolean registerReconnectedClient(ClientType type, CommandConnection connection, ClientID clientID) {
         if(type == ClientType.Configurator) {
             if(_configurator == null) {
-                _configurator = new Client(type, connection, clientID);
+                _configurator = new Client(connection, clientID);
                 return true;
             }
 
@@ -123,11 +125,23 @@ public class ClientManager {
     }
 
     public void clientDisconnected(CommandConnection connection) {
-        if(_configurator.getConnection().equals(connection)) {
+        if(_configurator != null && _configurator.getConnection().equals(connection)) {
             _configurator = null;
         } else {
             _team1.clientDisconnected(connection);
             _team2.clientDisconnected(connection);
         }
+    }
+
+    public List<CommandConnection> getListOfAllConnections() {
+        List<CommandConnection> connectionList = new LinkedList<>();
+        if(_configurator != null) {
+            connectionList.add(_configurator.getConnection());
+        }
+
+        connectionList.addAll(_team1.getConnections());
+        connectionList.addAll(_team2.getConnections());
+
+        return connectionList;
     }
 }
