@@ -7,12 +7,9 @@ import at.fhv.puzzle2.server.client.ClientType;
 import at.fhv.puzzle2.server.client.MobileClient;
 import at.fhv.puzzle2.server.client.UnityClient;
 import at.fhv.puzzle2.server.client.state.NotConnectedClientState;
-import at.fhv.puzzle2.server.client.state.ReadyClientState;
 import at.fhv.puzzle2.server.entity.Puzzle;
-import at.fhv.puzzle2.server.entity.Question;
 import at.fhv.puzzle2.server.logic.manager.PuzzleManager;
 import at.fhv.puzzle2.server.logic.manager.QuestionManager;
-import at.fhv.puzzle2.server.team.state.TeamState;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -88,7 +85,8 @@ public class Team {
     }
 
     public boolean isTeamReady() {
-        return _mobileClient.isReady() && _unityClient.isReady();
+        return _mobileClient != null && _mobileClient.isReady() &&
+                _unityClient != null && _unityClient.isReady();
     }
 
     public boolean belongsToTeam(ClientID clientID) {

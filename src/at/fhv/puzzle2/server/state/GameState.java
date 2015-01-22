@@ -2,10 +2,8 @@ package at.fhv.puzzle2.server.state;
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
-import at.fhv.puzzle2.communication.application.command.MultipleReceiversCommand;
 import at.fhv.puzzle2.communication.application.command.commands.RegisteredCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
-import at.fhv.puzzle2.server.QueuedCommand;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.client.ClientManager;
 import at.fhv.puzzle2.server.logic.Game;
@@ -33,15 +31,15 @@ public abstract class GameState {
         return false;
     }
 
-    protected void sendRegisteredCommand(final CommandConnection connection, ClientID clientID, boolean isRegistered) {
+    protected RegisteredCommand createRegisterCommand(final CommandConnection connection, ClientID clientID, boolean isRegistered) {
         RegisteredCommand registeredCommand = new RegisteredCommand(clientID);
         registeredCommand.setRegistered(isRegistered);
         registeredCommand.setConnection(connection);
 
-        SendQueue.getInstance().addCommandToSend(registeredCommand);
+        return registeredCommand;
     }
 
-    protected void sendRegisteredCommand(CommandConnection connection, boolean isRegistered) {
-        sendRegisteredCommand(connection, null, isRegistered);
+    protected RegisteredCommand sendRegisteredCommand(CommandConnection connection, boolean isRegistered) {
+        return createRegisterCommand(connection, null, isRegistered);
     }
 }

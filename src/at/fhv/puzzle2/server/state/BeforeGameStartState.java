@@ -3,12 +3,14 @@ package at.fhv.puzzle2.server.state;
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.*;
+import at.fhv.puzzle2.communication.application.command.commands.mobile.SearchPuzzlePartCommand;
 import at.fhv.puzzle2.communication.application.command.commands.unity.ShowQRCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.client.Client;
 import at.fhv.puzzle2.server.client.ClientManager;
 import at.fhv.puzzle2.server.client.ClientType;
+import at.fhv.puzzle2.server.client.MobileClient;
 import at.fhv.puzzle2.server.team.Team;
 import at.fhv.puzzle2.server.client.state.ReadyClientState;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
@@ -28,7 +30,15 @@ public class BeforeGameStartState extends GameState {
     public void processCommand(Command command) {
         if(command instanceof ReadyCommand) {
             Client client = _clientManager.getClientByID(command.getClientID());
-             client.swapClientState(new ReadyClientState(client));
+            client.swapClientState(new ReadyClientState(client));
+
+            if(client instanceof MobileClient) {
+                SearchPuzzlePartCommand searchPuzzlePartCommand = new SearchPuzzlePartCommand(client.getClientID());
+                searchPuzzlePartCommand.setConnection(client.getConnection());
+                searchPuzzlePartCommand.setPartID(14);
+
+                SendQueue.getInstance().addCommandToSend(searchPuzzlePartCommand, 10000);
+            }
 
             if(_clientManager.areAllReady()) {
                 //TODO we should switch the GameState now and send GameStart commands
@@ -43,17 +53,19 @@ public class BeforeGameStartState extends GameState {
             if(registerCommand.getClientID() != null) {
                 //So he tries to connect with a clientID, lets reassign the connection
                 boolean registered = _clientManager.registerReconnectedClient(type, clientConnection, registerCommand.getClientID());
-                sendRegisteredCommand(clientConnection, registerCommand.getClientID(), registered);
+                SendQueue.getInstance().addCommandToSend(createRegisterCommand(clientConnection, registerCommand.getClientID(), registered));
 
                 return;
             }
 
             ClientID clientID = _clientManager.registerNewClient(type, clientConnection);
 
+            RegisteredCommand registeredCommand = new RegisteredCommand(clientID);
+            registeredCommand.setConnection(clientConnection);
             if(clientID == null) {
-                sendRegisteredCommand(clientConnection, clientID, false);
+                registeredCommand.setRegistered(false);
             } else {
-                sendRegisteredCommand(clientConnection, clientID, true);
+                registeredCommand.setRegistered(true);
 
                 if(ClientType.Unity.isClientType(((RegisterCommand) command).getClientType())) {
                     ShowQRCommand qrCommand = new ShowQRCommand(clientID);
@@ -61,8 +73,10 @@ public class BeforeGameStartState extends GameState {
                     qrCommand.setQRCode("Ich bin ein ein kleines Schweinchen");
                     qrCommand.setConnection(clientConnection);
 
-                    SendQueue.getInstance().addCommandToSend(qrCommand);
+                    SendQueue.getInstance().addCommandToSend(qrCommand, 3000);
                 }
+
+                SendQueue.getInstance().addCommandToSend(registeredCommand);
             }
         } else if(command instanceof GetGameStateCommand) {
             GameStateCommand gameStateCommand = new GameStateCommand(command.getClientID());
