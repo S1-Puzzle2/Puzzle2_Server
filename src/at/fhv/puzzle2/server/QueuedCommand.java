@@ -20,6 +20,7 @@ public class QueuedCommand {
     }
 
     public void send() {
+        System.out.println("\nSent app-message: " + _command.toJSONString());
         new Thread(() -> _command.getConnection().sendCommand(_command)).start();
     }
 }
