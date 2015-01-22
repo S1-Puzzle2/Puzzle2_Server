@@ -4,20 +4,17 @@ import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.*;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
-import at.fhv.puzzle2.server.QueuedCommand;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.client.Client;
 import at.fhv.puzzle2.server.client.ClientManager;
 import at.fhv.puzzle2.server.client.ClientType;
-import at.fhv.puzzle2.server.client.Team;
+import at.fhv.puzzle2.server.team.Team;
 import at.fhv.puzzle2.server.client.state.ReadyClientState;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
 import at.fhv.puzzle2.server.logic.Game;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -46,17 +43,20 @@ public class BeforeGameStartState extends GameState {
                 //So he tries to connect with a clientID, lets reassign the connection
                 boolean registered = _clientManager.registerReconnectedClient(type, clientConnection, registerCommand.getClientID());
                 sendRegisteredCommand(clientConnection, registerCommand.getClientID(), registered);
+
+                return;
             }
 
             ClientID clientID = _clientManager.registerNewClient(type, clientConnection);
 
             if(clientID == null) {
-                sendRegisteredCommand(clientConnection, false);
+                sendRegisteredCommand(clientConnection, clientID, false);
             } else {
                 sendRegisteredCommand(clientConnection, clientID, true);
             }
         } else if(command instanceof GetGameStateCommand) {
             GameStateCommand gameStateCommand = new GameStateCommand(command.getClientID());
+            gameStateCommand.setConnection(command.getConnection());
 
             Team team = _clientManager.getTeamOfClient(command.getClientID());
 
