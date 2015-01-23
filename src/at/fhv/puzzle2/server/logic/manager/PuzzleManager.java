@@ -16,45 +16,30 @@ public class PuzzleManager {
 
     List<PuzzlePart> _finishedParts;
 
-    PuzzlePart _currentPart;
-
-    public PuzzleManager() {
+    public PuzzleManager(Puzzle puzzle) {
         _random = new Random(System.nanoTime());
         _finishedParts = new LinkedList<>();
-    }
 
-    public void setPuzzle(Puzzle puzzle) {
         _puzzle = puzzle;
     }
 
     public PuzzlePart getNextRandomPuzzlePart() {
         List<PuzzlePart> partList = _puzzle.getPartsList();
-        _currentPart = partList.get(_random.nextInt(partList.size() - 1));
+        PuzzlePart nextPart = partList.get(_random.nextInt(partList.size() - 1));
 
         _puzzle.setPuzzlePartList(partList.stream()
-                .filter(part -> !(Objects.equals(part.getID(), _currentPart.getID())))
+                .filter(part -> !(Objects.equals(part.getID(), nextPart.getID())))
                 .collect(toCollection(LinkedList::new)));
 
-        return _currentPart;
+        return nextPart;
+    }
+
+    public void partFinished(PuzzlePart part) {
+        _finishedParts.add(part);
     }
 
     public List<PuzzlePart> getFinishedParts() {
         return _finishedParts;
-    }
-
-    public boolean barcodeMatches(String barcode) {
-        return Objects.equals(_currentPart.getBarcode(), barcode);
-    }
-
-    public boolean barcodeScanned(String barcode) {
-        if(!barcodeMatches(barcode)) {
-            return false;
-        }
-
-        _finishedParts.add(_currentPart);
-        _currentPart = null;
-
-        return true;
     }
 
     public boolean partsAvailable() {

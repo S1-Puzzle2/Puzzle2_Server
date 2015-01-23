@@ -10,7 +10,7 @@ import java.util.Random;
 
 import static java.util.stream.Collectors.toCollection;
 
-public class QuestionManager {
+public class QuestionManager implements Cloneable {
     private List<Question> _questionList;
     private Random _random;
 
@@ -19,7 +19,6 @@ public class QuestionManager {
 
         _questionList = questionList;
     }
-
 
     public Question getNextRandomQuestion() {
         Question tmpQuestion = _questionList.get(_random.nextInt(_questionList.size() - 1));
@@ -31,5 +30,25 @@ public class QuestionManager {
         tmpQuestion.shuffleAnswers();
 
         return tmpQuestion;
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            QuestionManager questionManager = (QuestionManager) super.clone();
+            questionManager._random = new Random(System.nanoTime());
+
+            questionManager._questionList = new LinkedList<>();
+            for(Question question: _questionList) {
+                questionManager._questionList.add((Question) question.clone());
+            }
+
+            return questionManager;
+
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

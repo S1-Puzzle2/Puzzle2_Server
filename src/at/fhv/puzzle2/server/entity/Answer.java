@@ -1,6 +1,6 @@
 package at.fhv.puzzle2.server.entity;
 
-public class Answer {
+public class Answer implements Cloneable {
     Integer _id;
     String _text;
     boolean _isCorrect;
@@ -29,5 +29,10 @@ public class Answer {
 
     public void setID(int id) {
         _id = id;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

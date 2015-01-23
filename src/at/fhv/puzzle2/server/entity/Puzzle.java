@@ -14,6 +14,17 @@ public class Puzzle {
         _name = name;
     }
 
+    public Puzzle(Puzzle puzzle) {
+        _id = puzzle.getID();
+        _name = puzzle.getName();
+
+        _partsList = new LinkedList<>();
+
+        for(PuzzlePart part: puzzle._partsList) {
+            _partsList.add(part);
+        }
+    }
+
     public Puzzle(String name) {
         this(null, name);
     }

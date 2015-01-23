@@ -1,20 +1,19 @@
-package at.fhv.puzzle2.server.client;
+package at.fhv.puzzle2.server.users.client;
 
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
-import at.fhv.puzzle2.server.client.state.AnswerQuestionState;
-import at.fhv.puzzle2.server.client.state.ClientState;
-import at.fhv.puzzle2.server.client.state.SearchPartClientState;
-import at.fhv.puzzle2.server.entity.Question;
 import at.fhv.puzzle2.server.logic.manager.QuestionManager;
+import at.fhv.puzzle2.server.users.client.state.AnswerQuestionState;
+import at.fhv.puzzle2.server.users.client.state.ClientState;
+import at.fhv.puzzle2.server.users.client.state.SearchPartClientState;
 
 public class MobileClient extends Client {
     private QuestionManager _questionManager;
 
     public MobileClient(CommandConnection connection, ClientID clientID) {
-        super(connection, clientID);
+        super(ClientType.Mobile, connection, clientID);
     }
 
     @Override

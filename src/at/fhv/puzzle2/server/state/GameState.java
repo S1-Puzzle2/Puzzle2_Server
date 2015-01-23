@@ -4,8 +4,7 @@ import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.RegisteredCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
-import at.fhv.puzzle2.server.SendQueue;
-import at.fhv.puzzle2.server.client.ClientManager;
+import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.logic.Game;
 
 public abstract class GameState {

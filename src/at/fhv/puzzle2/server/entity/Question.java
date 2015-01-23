@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-public class Question {
+public class Question implements Cloneable {
     Integer _id;
     String _text;
     List<Answer> _answerList = new LinkedList<>();
@@ -48,5 +48,17 @@ public class Question {
 
     public void addAnswer(Answer answer) {
         _answerList.add(answer);
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Question question = (Question) super.clone();
+        question._answerList = new LinkedList<>();
+
+        for(Answer answer: _answerList) {
+            question.addAnswer((Answer) answer.clone());
+        }
+
+        return question;
     }
 }

@@ -1,4 +1,4 @@
-package at.fhv.puzzle2.server.client;
+package at.fhv.puzzle2.server.users.client;
 
 import java.util.Objects;
 

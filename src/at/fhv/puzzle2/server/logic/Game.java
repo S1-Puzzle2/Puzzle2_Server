@@ -2,7 +2,7 @@ package at.fhv.puzzle2.server.logic;
 
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
-import at.fhv.puzzle2.server.client.ClientManager;
+import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.state.BeforeGameStartState;
 import at.fhv.puzzle2.server.state.GameState;
