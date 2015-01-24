@@ -11,6 +11,7 @@ import at.fhv.puzzle2.server.game.state.GameRunningState;
 import at.fhv.puzzle2.server.game.state.GameState;
 import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.client.Client;
+import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 
 import java.util.List;
 
@@ -49,10 +50,11 @@ public class Game {
 
         if(_currentState instanceof GameRunningState && state instanceof BeforeGameStartState) {
             //Alright, so one of the clients disconnected. Now notify all other clients that the game
-            //has paused
+            //has paused and set their status to Ready
             List<Client> clientList = _clientManager.getAllClients();
 
             for(Client client: clientList) {
+                client.swapClientState(new ReadyClientState(client), true);
                 PauseCommand pauseCommand = new PauseCommand(client.getClientID());
                 pauseCommand.setConnection(client.getConnection());
 
