@@ -11,7 +11,7 @@ import java.util.Random;
 import static java.util.stream.Collectors.toCollection;
 
 public class PuzzleManager {
-    private final Puzzle _puzzle;
+    private final List<PuzzlePart> _availableParts;
     private final Random _random;
 
     private final List<PuzzlePart> _finishedParts;
@@ -20,27 +20,26 @@ public class PuzzleManager {
         _random = new Random(System.nanoTime());
         _finishedParts = new LinkedList<>();
 
-        _puzzle = puzzle;
+        _availableParts = new LinkedList<>();
+        _availableParts.addAll(puzzle.getPartsList());
     }
 
     public PuzzlePart getNextRandomPuzzlePart() {
-        List<PuzzlePart> partList = _puzzle.getPartsList();
-        PuzzlePart nextPart;
-        if(partList.size() == 1) {
-            nextPart = partList.get(0);
-        } else {
-            nextPart = partList.get(_random.nextInt(partList.size() - 1));
+        if(!partsAvailable()) {
+            return null;
         }
 
-        _puzzle.setPuzzlePartList(partList.stream()
-                .filter(part -> !(Objects.equals(part.getID(), nextPart.getID())))
-                .collect(toCollection(LinkedList::new)));
+        PuzzlePart nextPart;
+        if(_availableParts.size() == 1) {
+            nextPart = _availableParts.get(0);
+        } else {
+            nextPart = _availableParts.get(_random.nextInt(_availableParts.size() - 1));
+        }
+
+        //Remove it from the list now
+        _availableParts.remove(nextPart);
 
         return nextPart;
-    }
-
-    public Puzzle getPuzzle() {
-        return _puzzle;
     }
 
     public void partFinished(PuzzlePart part) {
@@ -52,6 +51,6 @@ public class PuzzleManager {
     }
 
     public boolean partsAvailable() {
-        return _puzzle.getPartsList().size() > 0;
+        return _availableParts.size() > 0;
     }
 }
