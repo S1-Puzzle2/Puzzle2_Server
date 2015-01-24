@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../Java-Communication/Java-Communication.iml" filepath="$PROJECT_DIR$/../Java-Communication/Java-Communication.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Java-Logging/Java-Logging.iml" filepath="$PROJECT_DIR$/../Java-Logging/Java-Logging.iml" />
       <module fileurl="file://$PROJECT_DIR$/Puzzle2-Server.iml" filepath="$PROJECT_DIR$/Puzzle2-Server.iml" />
     </modules>
   </component>

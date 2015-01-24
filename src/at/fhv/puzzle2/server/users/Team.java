@@ -15,6 +15,7 @@ import at.fhv.puzzle2.server.users.client.MobileClient;
 import at.fhv.puzzle2.server.users.client.UnityClient;
 import at.fhv.puzzle2.server.users.client.state.NotConnectedClientState;
 import at.fhv.puzzle2.server.users.client.state.NotReadyClientState;
+import at.fhv.puzzle2.server.users.client.state.PuzzleFinishedClientState;
 import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 
 import java.sql.SQLException;
@@ -26,6 +27,8 @@ public class Team {
     private final String _teamName;
     private UnityClient _unityClient;
     private MobileClient _mobileClient;
+
+    private boolean _isWinning = false;
 
     //We create a ID for the mobile client in advance
     private final ClientID _mobileClientID = ClientID.createRandomClientID();
@@ -44,6 +47,17 @@ public class Team {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void gameFinished(boolean isWinning) {
+        _isWinning = isWinning;
+
+        _mobileClient.gameFinished(isWinning);
+        _unityClient.gameFinished(isWinning);
+    }
+
+    public boolean isMobileFinished() {
+        return _mobileClient.getCurrentState() instanceof PuzzleFinishedClientState;
     }
 
     public ClientID getMobileClientID() {

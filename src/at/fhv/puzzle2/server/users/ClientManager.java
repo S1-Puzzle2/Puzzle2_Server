@@ -50,6 +50,18 @@ public class ClientManager {
         return name;
     }
 
+    public void gameFinished(Team winningTeam) {
+        if(Objects.equals(_team1, winningTeam)) {
+            _team1.gameFinished(true);
+            _team2.gameFinished(false);
+        } else {
+            _team1.gameFinished(false);
+            _team2.gameFinished(true);
+        }
+
+        _configurator.gameFinished(true);
+    }
+
     public void setPuzzle(Puzzle puzzle) {
         _team1.setPuzzle(puzzle);
         _team2.setPuzzle(puzzle);
@@ -57,10 +69,6 @@ public class ClientManager {
 
     public boolean areAllReady() {
         return _team1.isTeamReady() && _team2.isTeamReady();
-    }
-
-    public boolean belongsToAnyTeam(ClientID clientID) {
-        return _team1.belongsToTeam(clientID) || _team2.belongsToTeam(clientID);
     }
 
     public Team getTeamOfClient(Client client) {

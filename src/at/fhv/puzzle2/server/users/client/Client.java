@@ -3,14 +3,17 @@ package at.fhv.puzzle2.server.users.client;
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
+import at.fhv.puzzle2.logging.Logger;
 import at.fhv.puzzle2.server.users.Team;
 import at.fhv.puzzle2.server.users.client.state.ClientState;
+import at.fhv.puzzle2.server.users.client.state.GameFinishedClientState;
 import at.fhv.puzzle2.server.users.client.state.NotConnectedClientState;
 import at.fhv.puzzle2.server.users.client.state.NotReadyClientState;
 
 import java.util.Stack;
 
 public abstract class Client {
+    private static final String TAG = "server.Client";
     private CommandConnection _connection;
     private ClientID _clientID;
 
@@ -59,6 +62,12 @@ public abstract class Client {
         return _clientID;
     }
 
+    public void gameFinished(boolean isWinning) {
+        GameFinishedClientState gameFinishedClientState = new GameFinishedClientState(this);
+        gameFinishedClientState.setIsWinning(isWinning);
+
+        swapClientState(gameFinishedClientState);
+    }
 
     public boolean isReady() {
         return !(_currentState instanceof NotConnectedClientState || _currentState instanceof NotReadyClientState);
@@ -79,14 +88,16 @@ public abstract class Client {
         _currentState.enter();
     }
 
-    public void swapToLastStateOrDefault() {
+    public void swapToLastState() {
         if(!_stateStack.empty()) {
-            _currentState = _stateStack.pop();
-            _currentState.enter();
+             swapClientState(_stateStack.pop());
         } else {
-            _currentState = getStartingState();
-            _currentState.enter();
+            Logger.getLogger().error(TAG, "No last state is available");
         }
+    }
+
+    public void swapToDefaultState() {
+        swapClientState(getStartingState());
     }
 
     public abstract ClientState fillDataInState(ClientState state);

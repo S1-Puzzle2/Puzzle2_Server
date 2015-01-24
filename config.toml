@@ -11,3 +11,16 @@ password = "root"
 
 [game]
 team_names = ["Epic Team", "DAUs", "Die Schürzenjäger", "Ghetto Gangsters"]
+
+#Logger wird noch nicht ausgelesen, kommt noch
+[logger]
+#Mögliche Loglevel sind: Error, Warning, Info, Debug, Trace
+logLevel = "Trace"
+formatter = "SimpleFormatter"
+
+[[logger.sink]]
+sink = "Console"
+
+[[logger.sink]]
+sink = "SimpleFile"
+parameters = ["puzzle2.log"]

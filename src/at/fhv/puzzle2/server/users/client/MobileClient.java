@@ -43,9 +43,6 @@ public class MobileClient extends Client {
 
             ((AnswerQuestionState) state).setQuestion(question);
 
-        /*UnlockedPartCommand unlockedPartsCommand = new UnlockedPartCommand(null);
-        _team.sendCommandToUnity(unlockedPartsCommand);*/
-
         } else if(state instanceof SearchPartClientState) {
             if(!_team.getPuzzleManager().partsAvailable()) {
                 return new PuzzleFinishedClientState(this);
