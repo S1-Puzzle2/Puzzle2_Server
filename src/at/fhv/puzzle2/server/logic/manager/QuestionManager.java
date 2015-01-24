@@ -1,7 +1,6 @@
 package at.fhv.puzzle2.server.logic.manager;
 
 import at.fhv.puzzle2.server.entity.Question;
-import at.fhv.puzzle2.server.entity.manager.QuestionEntityManager;
 
 import java.util.LinkedList;
 import java.util.List;

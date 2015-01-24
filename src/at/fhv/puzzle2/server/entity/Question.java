@@ -1,14 +1,11 @@
 package at.fhv.puzzle2.server.entity;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Question implements Cloneable {
-    Integer _id;
-    String _text;
-    List<Answer> _answerList = new LinkedList<>();
+    private Integer _id;
+    private final String _text;
+    private List<Answer> _answerList = new LinkedList<>();
 
     public Question(Integer id, String text) {
         _id = id;
@@ -46,8 +43,31 @@ public class Question implements Cloneable {
         Collections.shuffle(_answerList, new Random(seed));
     }
 
-    public void addAnswer(Answer answer) {
+    public int getCorrectAnswerIndex() {
+        for(int i = 0; i < _answerList.size(); i++) {
+            if(_answerList.get(i).isCorrect()) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public HashMap<Integer, String> getAnswerMap() {
+        HashMap<Integer, String> answerMap = new LinkedHashMap<>();
+        for(int i = 0; i < _answerList.size(); i++) {
+            answerMap.put(i, _answerList.get(i).getText());
+        }
+
+        return answerMap;
+    }
+
+    void addAnswer(Answer answer) {
         _answerList.add(answer);
+    }
+
+    public void setAnswerList(List<Answer> answerList) {
+        _answerList = answerList;
     }
 
     @Override

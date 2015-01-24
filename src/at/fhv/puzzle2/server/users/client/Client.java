@@ -10,28 +10,29 @@ import at.fhv.puzzle2.server.users.client.state.NotReadyClientState;
 
 import java.util.Stack;
 
-public class Client {
+public abstract class Client {
     private CommandConnection _connection;
     private ClientID _clientID;
 
-    private ClientType _type;
+    Team _team;
 
-    private Team _team;
+    ClientState _currentState;
+    private final Stack<ClientState> _stateStack;
 
-    protected ClientState _currentState;
-    protected Stack<ClientState> _stateStack;
-
-    public Client(ClientType type, CommandConnection connection, ClientID clientID) {
+    Client(CommandConnection connection, ClientID clientID) {
         _connection = connection;
         _clientID = clientID;
-        _type = type;
 
         _currentState = new NotConnectedClientState(this);
         _stateStack = new Stack<>();
     }
 
-    public Client(ClientType type, CommandConnection connection) {
-        this(type, connection, null);
+    public ClientState getCurrentState() {
+        return _currentState;
+    }
+
+    public Client(CommandConnection connection) {
+        this(connection, null);
     }
 
     public void setTeam(Team team) {
@@ -40,10 +41,6 @@ public class Client {
 
     public void setID(ClientID id) {
         _clientID = id;
-    }
-
-    public ClientType getClientType() {
-        return _type;
     }
 
     public boolean isConnected() {
@@ -62,31 +59,43 @@ public class Client {
         return _clientID;
     }
 
+
+    public boolean isReady() {
+        return !(_currentState instanceof NotConnectedClientState || _currentState instanceof NotReadyClientState);
+    }
+
+    public abstract void processCommand(Command command);
+
+    public void swapClientState(ClientState state) {
+        swapClientState(state, false);
+    }
+
     public void swapClientState(ClientState state, boolean storeLastState) {
         if(storeLastState) {
             _stateStack.push(_currentState);
         }
 
         _currentState = state;
+        _currentState.enter();
     }
 
-    public boolean isReady() {
-        return !(_currentState instanceof NotConnectedClientState || _currentState instanceof NotReadyClientState);
-    }
-
-    public void processCommand(Command command) {
-        ClientState state = _currentState.handleCommand(command);
-
-        if(state != null) {
-
+    public void swapToLastStateOrDefault() {
+        if(!_stateStack.empty()) {
+            _currentState = _stateStack.pop();
+            _currentState.enter();
+        } else {
+            _currentState = getStartingState();
+            _currentState.enter();
         }
     }
 
-    public void swapClientState(ClientState state) {
-        swapClientState(state, false);
-    }
+    public abstract ClientState fillDataInState(ClientState state);
 
-    public void swapToLastState() {
-        _currentState = _stateStack.pop();
-    }
+    /**
+     * This is the default state, which the client gets in when the game starts
+     * Its SearchPart for the MobileClient
+     * and SolvePuzzle for the UnityClient
+     * @return ClientState
+     */
+    protected abstract ClientState getStartingState();
 }

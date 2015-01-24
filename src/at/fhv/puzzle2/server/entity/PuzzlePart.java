@@ -4,10 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 public class PuzzlePart {
-    Integer _id;
-    String _barcode;
-    int _order;
-    byte[] _image;
+    private Integer _id;
+    private final String _barcode;
+    private final int _order;
+    private byte[] _image;
 
     public PuzzlePart(Integer id, String barcode, int order) {
         _id = id;

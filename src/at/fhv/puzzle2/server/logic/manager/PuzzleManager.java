@@ -11,10 +11,10 @@ import java.util.Random;
 import static java.util.stream.Collectors.toCollection;
 
 public class PuzzleManager {
-    Puzzle _puzzle;
-    Random _random;
+    private final Puzzle _puzzle;
+    private final Random _random;
 
-    List<PuzzlePart> _finishedParts;
+    private final List<PuzzlePart> _finishedParts;
 
     public PuzzleManager(Puzzle puzzle) {
         _random = new Random(System.nanoTime());
@@ -25,13 +25,22 @@ public class PuzzleManager {
 
     public PuzzlePart getNextRandomPuzzlePart() {
         List<PuzzlePart> partList = _puzzle.getPartsList();
-        PuzzlePart nextPart = partList.get(_random.nextInt(partList.size() - 1));
+        PuzzlePart nextPart;
+        if(partList.size() == 1) {
+            nextPart = partList.get(0);
+        } else {
+            nextPart = partList.get(_random.nextInt(partList.size() - 1));
+        }
 
         _puzzle.setPuzzlePartList(partList.stream()
                 .filter(part -> !(Objects.equals(part.getID(), nextPart.getID())))
                 .collect(toCollection(LinkedList::new)));
 
         return nextPart;
+    }
+
+    public Puzzle getPuzzle() {
+        return _puzzle;
     }
 
     public void partFinished(PuzzlePart part) {

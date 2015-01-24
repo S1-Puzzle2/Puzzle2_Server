@@ -5,8 +5,6 @@ import at.fhv.puzzle2.communication.application.command.commands.RegisteredComma
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.users.client.Client;
 
-import java.util.Objects;
-
 public class NotConnectedClientState extends ClientState {
     public NotConnectedClientState(Client client) {
         super(client);

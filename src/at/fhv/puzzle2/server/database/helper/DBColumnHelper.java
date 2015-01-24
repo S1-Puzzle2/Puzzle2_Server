@@ -7,9 +7,9 @@ public class DBColumnHelper {
     public static final String PUZZLE_NAME = "name";
 
     //Puzzle-Part table columns
-    public static final String PART_BARCODE = "barcode";
-    public static final String PART_ORDER = "order";
-    public static final String PART_IMAGE = "image";
+    public static final String PART_BARCODE = "barCode";
+    public static final String PART_ORDER = "partOrder";
+    public static final String PART_IMAGE_DATA = "imageData";
     public static final String PART_PUZZLE_REF = "puzzleREF";
 
     //Question table columns

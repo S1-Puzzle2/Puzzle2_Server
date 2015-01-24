@@ -2,9 +2,9 @@ package at.fhv.puzzle2.server;
 
 import at.fhv.puzzle2.communication.application.command.Command;
 
-public class QueuedCommand {
+class QueuedCommand {
     private long _delay;
-    private Command _command;
+    private final Command _command;
 
     public QueuedCommand(Command command, long delay) {
         _command = command;

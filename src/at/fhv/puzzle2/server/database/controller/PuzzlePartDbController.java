@@ -33,7 +33,7 @@ public class PuzzlePartDbController extends DbController {
                     result.getString(DBColumnHelper.PART_BARCODE),
                     result.getInt(DBColumnHelper.PART_ORDER));
 
-            InputStream imageStream = result.getBinaryStream(DBColumnHelper.PART_IMAGE);
+            InputStream imageStream = result.getBinaryStream(DBColumnHelper.PART_IMAGE_DATA);
             ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
 
             //Read the BLOB from the result
@@ -53,7 +53,7 @@ public class PuzzlePartDbController extends DbController {
     public void persistPuzzlePartList(List<PuzzlePart> partList, Puzzle puzzle) throws SQLException {
         String query = "INSERT INTO " + DbTableHelper.PUZZLE_PART_TABLE +
                 "(" + DBColumnHelper.PART_BARCODE + ", " + DBColumnHelper.PART_ORDER + ", " +
-                DBColumnHelper.PART_PUZZLE_REF + ", " + DBColumnHelper.PART_IMAGE + ") " +
+                DBColumnHelper.PART_PUZZLE_REF + ", " + DBColumnHelper.PART_IMAGE_DATA + ") " +
                 "VALUES (?, ?, ?, ?)";
 
         PreparedStatement statement = _connection.createPreparedStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -65,5 +65,20 @@ public class PuzzlePartDbController extends DbController {
             statement.setBinaryStream(4, part.getImageInputStream());
             part.setID(statement.executeUpdate());
         }
+    }
+
+    public void persistPuzzlePart(PuzzlePart part, Puzzle puzzle) throws SQLException {
+        String query = "INSERT INTO " + DbTableHelper.PUZZLE_PART_TABLE +
+                " (" + DBColumnHelper.PART_BARCODE + ", " + DBColumnHelper.PART_ORDER + ", " +
+                DBColumnHelper.PART_PUZZLE_REF + ", " + DBColumnHelper.PART_IMAGE_DATA + ") " +
+                "VALUES (?, ?, ?, ?)";
+
+        PreparedStatement statement = _connection.createPreparedStatement(query, Statement.RETURN_GENERATED_KEYS);
+        statement.setString(1, part.getBarcode());
+        statement.setInt(2, part.getOrder());
+        statement.setInt(3, puzzle.getID());
+        statement.setBinaryStream(4, part.getImageInputStream());
+
+        part.setID(statement.executeUpdate());
     }
 }

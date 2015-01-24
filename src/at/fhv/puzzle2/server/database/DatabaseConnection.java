@@ -3,7 +3,7 @@ package at.fhv.puzzle2.server.database;
 import java.sql.*;
 
 public class DatabaseConnection {
-    private Connection _connection;
+    private final Connection _connection;
     private final Object _lock = new Object();
 
     public DatabaseConnection(Connection connection) {

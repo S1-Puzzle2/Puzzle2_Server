@@ -11,13 +11,21 @@ import java.util.List;
 
 public class QuestionEntityManager extends EntityManager {
 
-    protected QuestionEntityManager(Database database) {
+    public QuestionEntityManager(Database database) {
         super(database);
     }
 
     public List<Question> loadQuestions() throws SQLException {
         QuestionDbController questionDbController = _database.getQuestionController();
-        return questionDbController.getQuestionList();
+        AnswerDbController answerDbController = _database.getAnswerController();
+
+        List<Question> questionList = questionDbController.getQuestionList();
+
+        for(Question question: questionList) {
+            question.setAnswerList(answerDbController.getAnswerListByQuestion(question.getID()));
+        }
+
+        return questionList;
     }
 
     public void storeQuestion(Question question) throws SQLException {

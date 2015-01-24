@@ -1,9 +1,9 @@
 package at.fhv.puzzle2.server.entity;
 
 public class Answer implements Cloneable {
-    Integer _id;
-    String _text;
-    boolean _isCorrect;
+    private Integer _id;
+    private final String _text;
+    private final boolean _isCorrect;
 
     public Answer(Integer id, String text, boolean isCorrect) {
         _id = id;

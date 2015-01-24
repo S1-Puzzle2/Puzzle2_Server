@@ -2,12 +2,13 @@ package at.fhv.puzzle2.server.entity;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Puzzle {
-    Integer _id;
-    String _name;
+    private Integer _id;
+    private final String _name;
 
-    List<PuzzlePart> _partsList = new LinkedList<>();
+    private List<PuzzlePart> _partsList = new LinkedList<>();
 
     public Puzzle(Integer id, String name) {
         _id = id;
@@ -18,11 +19,7 @@ public class Puzzle {
         _id = puzzle.getID();
         _name = puzzle.getName();
 
-        _partsList = new LinkedList<>();
-
-        for(PuzzlePart part: puzzle._partsList) {
-            _partsList.add(part);
-        }
+        _partsList = puzzle._partsList.stream().collect(Collectors.toList());
     }
 
     public Puzzle(String name) {

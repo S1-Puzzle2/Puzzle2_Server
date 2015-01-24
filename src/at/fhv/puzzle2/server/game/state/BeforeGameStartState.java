@@ -3,17 +3,22 @@ package at.fhv.puzzle2.server.game.state;
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.*;
-import at.fhv.puzzle2.communication.application.command.commands.mobile.SearchPuzzlePartCommand;
+import at.fhv.puzzle2.communication.application.command.commands.configurator.CreatePuzzleCommand;
+import at.fhv.puzzle2.communication.application.command.commands.configurator.CreatePuzzlePartCommand;
 import at.fhv.puzzle2.communication.application.command.commands.unity.ShowQRCommand;
-import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.SendQueue;
-import at.fhv.puzzle2.server.users.client.Client;
-import at.fhv.puzzle2.server.users.ClientManager;
-import at.fhv.puzzle2.server.users.client.ClientType;
-import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
+import at.fhv.puzzle2.server.database.Database;
+import at.fhv.puzzle2.server.database.controller.PuzzleDbController;
+import at.fhv.puzzle2.server.database.controller.PuzzlePartDbController;
+import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
 import at.fhv.puzzle2.server.game.Game;
+import at.fhv.puzzle2.server.users.ClientManager;
+import at.fhv.puzzle2.server.users.Team;
+import at.fhv.puzzle2.server.users.client.*;
+import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,27 +31,32 @@ public class BeforeGameStartState extends GameState {
 
     @Override
     public void processCommand(Command command) {
+        Client client = _clientManager.getClientByID(command.getClientID());
+
         if(command instanceof ReadyCommand) {
-            Client client = _clientManager.getClientByID(command.getClientID());
             client.swapClientState(new ReadyClientState(client));
 
-            if(client.getClientType() == ClientType.Mobile) {
-                SearchPuzzlePartCommand searchPuzzlePartCommand = new SearchPuzzlePartCommand(client.getClientID());
-                searchPuzzlePartCommand.setConnection(client.getConnection());
-                searchPuzzlePartCommand.setPartID(14);
+            if(_clientManager.areAllReady() && _game.getPuzzle() != null) {
+                System.out.println("All are ready and the puzzle is choosed, lets do this :D");
 
-                SendQueue.getInstance().addCommandToSend(searchPuzzlePartCommand, 10000);
-            }
-
-            if(_clientManager.areAllReady()) {
-                //TODO we should switch the GameState now and send GameStart commands
-                System.out.println("All ready :O");
+                _game.setGameState(new GameRunningState(_game, _clientManager));
             }
         } else if(command instanceof RegisterCommand) {
             RegisterCommand registerCommand = (RegisterCommand) command;
 
             ClientType type = ClientType.getClientTypeByString(registerCommand.getClientType());
-            Client newClient = new Client(type, registerCommand.getConnection());
+            Client newClient = null;
+            switch (type) {
+                case Unity:
+                    newClient = new UnityClient(registerCommand.getConnection());
+                    break;
+                case Mobile:
+                    newClient = new MobileClient(registerCommand.getConnection());
+                    break;
+                case Configurator:
+                    newClient = new ConfiguratorClient(registerCommand.getConnection());
+                    break;
+            }
 
             if(registerCommand.getClientID() != null) {
                 newClient.setID(registerCommand.getClientID());
@@ -54,7 +64,7 @@ public class BeforeGameStartState extends GameState {
                 newClient.setID(ClientID.createRandomClientID());
             }
 
-            boolean registered = false;
+            boolean registered;
 
             if(registerCommand.getClientID() != null) {
                 //So he tries to connect with a clientID, lets reassign the connection
@@ -67,13 +77,16 @@ public class BeforeGameStartState extends GameState {
             registeredCommand.setConnection(newClient.getConnection());
             registeredCommand.setRegistered(registered);
 
-            if(newClient.getClientType() == ClientType.Unity && registered) {
+            if(newClient instanceof UnityClient && registered) {
                 ShowQRCommand qrCommand = new ShowQRCommand(newClient.getClientID());
 
-                qrCommand.setQRCode("Ich bin ein ein kleines Schweinchen");
+                Team team = _clientManager.getTeamOfClient(newClient);
+
+
+                qrCommand.setQRCode(team.getMobileClientID().toString());
                 qrCommand.setConnection(newClient.getConnection());
 
-                SendQueue.getInstance().addCommandToSend(qrCommand, 3000);
+                SendQueue.getInstance().addCommandToSend(qrCommand);
             }
 
             SendQueue.getInstance().addCommandToSend(registeredCommand);
@@ -90,7 +103,7 @@ public class BeforeGameStartState extends GameState {
             }
 
             List<Integer> idList = new LinkedList<>();
-            idList.add(14);
+            idList.add(1);
 
             gameStateCommand.setPartsList(idList);
 
@@ -103,19 +116,44 @@ public class BeforeGameStartState extends GameState {
 
             SendQueue.getInstance().addCommandToSend(puzzlePartCommand);
 
-        }
-    }
+        } else if(command instanceof CreatePuzzleCommand) {
+            PuzzleDbController puzzleDbController = Database.getInstance().getPuzzleController();
+            Puzzle puzzle = new Puzzle(((CreatePuzzleCommand) command).getPuzzleName());
 
-    @Override
-    public void processDisconnectedClient(CommandConnection connection) {
-        _clientManager.clientDisconnected(connection);
+            try {
+                puzzleDbController.persistPuzzle(puzzle);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }else if(command instanceof CreatePuzzlePartCommand) {
+            CreatePuzzlePartCommand createPuzzlePartCommand = (CreatePuzzlePartCommand) command;
+            PuzzlePart part = new PuzzlePart(createPuzzlePartCommand.getUuid(), createPuzzlePartCommand.getOrder());
+            part.setImage(((CreatePuzzlePartCommand) command).getImage());
+
+            PuzzleDbController puzzleDbController = Database.getInstance().getPuzzleController();
+            PuzzlePartDbController puzzlePartDbController = Database.getInstance().getPuzzlePartController();
+            try {
+                Puzzle puzzle = puzzleDbController.getPuzzleByName(((CreatePuzzlePartCommand) command).getPuzzleName());
+                puzzlePartDbController.persistPuzzlePart(part, puzzle);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            client.processCommand(command);
+        }
     }
 
     @Override
     public boolean commandAllowedInGameState(Command command) {
         return isClassOf(command.getClass(),
                 RegisterCommand.class, GetGameStateCommand.class, ReadyCommand.class,
-                GetPuzzlePartCommand.class
+                GetPuzzlePartCommand.class, CreatePuzzleCommand.class,
+                CreatePuzzlePartCommand.class, ShowQRCommand.class
         );
+    }
+
+    @Override
+    public void enter() {
+
     }
 }

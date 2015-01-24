@@ -9,7 +9,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ReceivedCommandQueue implements MessageReceivedObserver, Iterator<Command> {
-    private BlockingQueue<Command> _commandQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Command> _commandQueue = new LinkedBlockingQueue<>();
 
     @Override
     public void messageReceived(CommandReceivedObservable commandReceivedObservable) {

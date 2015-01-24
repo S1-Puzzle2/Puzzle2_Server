@@ -8,9 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class SendQueue {
-    private List<QueuedCommand> _commandQueue;
+    private final List<QueuedCommand> _commandQueue;
 
-    public SendQueue() {
+    private SendQueue() {
         _commandQueue = Collections.synchronizedList(new LinkedList<>());
     }
 
@@ -20,15 +20,16 @@ public class SendQueue {
             queuedCommand.timeElapsed(timeElapsed);
 
             if(queuedCommand.shouldSendNow()) {
-                queuedCommand.send();
-
                 iterator.remove();
+
+                queuedCommand.send();
             }
         }
     }
 
     public void addCommandToSend(Command command, long delay) {
-        _commandQueue.add(new QueuedCommand(command, delay));
+        //Add the item at the front, so we keep the order of the commands to send
+        _commandQueue.add(0, new QueuedCommand(command, delay));
     }
 
     public void addCommandToSend(Command command) {

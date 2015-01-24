@@ -1,37 +1,54 @@
 package at.fhv.puzzle2.server.logic;
 
+import at.fhv.puzzle2.server.Configuration;
 import at.fhv.puzzle2.server.DisconnectedConnectionsQueue;
 import at.fhv.puzzle2.server.ReceivedCommandQueue;
 import at.fhv.puzzle2.server.SendQueue;
-import at.fhv.puzzle2.server.logic.manager.QuestionManager;
-import at.fhv.puzzle2.server.users.ClientManager;
+import at.fhv.puzzle2.server.entity.Puzzle;
+import at.fhv.puzzle2.server.entity.PuzzlePart;
+import at.fhv.puzzle2.server.game.Game;
 
+import java.sql.SQLException;
 import java.util.Date;
-import java.util.LinkedList;
 
 public class GameLoop implements Runnable {
-    private final int sleepTime = 500;
+    private int sleepTime;
 
-    private ReceivedCommandQueue _commandQueue;
-    private DisconnectedConnectionsQueue _disconnectedQueue;
+    private final ReceivedCommandQueue _commandQueue;
+    private final DisconnectedConnectionsQueue _disconnectedQueue;
 
-    private SendQueue _sendQueue;
+    private final SendQueue _sendQueue;
 
     private Game _game;
     private Thread _localThread = null;
     private volatile boolean _isRunning = false;
 
-    public GameLoop(ReceivedCommandQueue commandQueue, DisconnectedConnectionsQueue disconnectedQueue) {
+    public GameLoop(ReceivedCommandQueue commandQueue, DisconnectedConnectionsQueue disconnectedQueue) throws SQLException {
         _commandQueue = commandQueue;
         _disconnectedQueue = disconnectedQueue;
         _sendQueue = SendQueue.getInstance();
 
+
         _isRunning = true;
 
-        _game = new Game(new ClientManager(new QuestionManager(new LinkedList<>())));
+        _game = new Game();
+
+        initialize();
+
 
         _localThread = new Thread(this);
         _localThread.start();
+    }
+
+    private void initialize() {
+        //Get the loop time from the configuration
+        Configuration configuration = Configuration.getInstance();
+        sleepTime = configuration.getIntegerOrDefault("server.loop_time", 500);
+
+        Puzzle puzzle = new Puzzle(1, "Testpuzzle");
+        puzzle.addPuzzlePart(new PuzzlePart(1, "1234", 1));
+
+        _game.setPuzzle(puzzle);
     }
     @Override
     public void run() {

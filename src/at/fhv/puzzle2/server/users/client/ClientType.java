@@ -5,12 +5,12 @@ import java.util.Objects;
 public enum  ClientType {
     Mobile("Mobile"), Unity("Unity"), Configurator("Configurator");
 
-    private String _clientType;
+    private final String _clientType;
     ClientType(String type) {
         _clientType = type;
     }
 
-    public boolean isClientType(String type) {
+    boolean isClientType(String type) {
         return Objects.equals(_clientType, type);
     }
 

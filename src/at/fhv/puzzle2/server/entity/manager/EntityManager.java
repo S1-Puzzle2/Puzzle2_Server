@@ -2,10 +2,10 @@ package at.fhv.puzzle2.server.entity.manager;
 
 import at.fhv.puzzle2.server.database.Database;
 
-public abstract class EntityManager {
-    protected Database _database;
+abstract class EntityManager {
+    final Database _database;
 
-    protected EntityManager(Database database) {
+    EntityManager(Database database) {
         _database = database;
     }
 }

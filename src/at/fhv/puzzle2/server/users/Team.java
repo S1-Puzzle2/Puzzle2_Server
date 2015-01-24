@@ -1,42 +1,75 @@
 package at.fhv.puzzle2.server.users;
 
 import at.fhv.puzzle2.communication.ClientID;
+import at.fhv.puzzle2.communication.application.command.commands.unity.UnlockedPartCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
-import at.fhv.puzzle2.server.users.client.Client;
-import at.fhv.puzzle2.server.users.client.ClientType;
-import at.fhv.puzzle2.server.users.client.state.NotConnectedClientState;
+import at.fhv.puzzle2.server.SendQueue;
+import at.fhv.puzzle2.server.database.Database;
 import at.fhv.puzzle2.server.entity.Puzzle;
+import at.fhv.puzzle2.server.entity.PuzzlePart;
+import at.fhv.puzzle2.server.entity.manager.QuestionEntityManager;
 import at.fhv.puzzle2.server.logic.manager.PuzzleManager;
 import at.fhv.puzzle2.server.logic.manager.QuestionManager;
+import at.fhv.puzzle2.server.users.client.Client;
+import at.fhv.puzzle2.server.users.client.MobileClient;
+import at.fhv.puzzle2.server.users.client.UnityClient;
+import at.fhv.puzzle2.server.users.client.state.NotConnectedClientState;
 import at.fhv.puzzle2.server.users.client.state.NotReadyClientState;
 import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
 public class Team {
-    private String _teamName;
-    private Client _unityClient = null;
-    private Client _mobileClient = null;
+    private final String _teamName;
+    private UnityClient _unityClient;
+    private MobileClient _mobileClient;
 
     //We create a ID for the mobile client in advance
-    //TODO use a random uuid, this is just for testing
-    private final ClientID _mobileClientID = new ClientID("0dda1398-a293-11e4-89d3-123b93f75cba");
-
-    //private final ClientID _mobileClientID = ClientID.createRandomClientID();
+    private final ClientID _mobileClientID = ClientID.createRandomClientID();
 
     private QuestionManager _questionManager;
     private PuzzleManager _puzzleManager;
 
-    public Team(String name, QuestionManager questionManager) {
+    public Team(String name) {
         _teamName = name;
 
-        _questionManager = questionManager;
+        _unityClient = new UnityClient(null);
+        _mobileClient = new MobileClient(null);
+
+        try {
+            _questionManager = new QuestionManager(new QuestionEntityManager(Database.getInstance()).loadQuestions());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ClientID getMobileClientID() {
+        return _mobileClientID;
+    }
+
+    public void partUnlocked(PuzzlePart puzzlePart) {
+        _puzzleManager.partFinished(puzzlePart);
+
+        UnlockedPartCommand unlockedPartCommand = new UnlockedPartCommand(_unityClient.getClientID());
+        unlockedPartCommand.setConnection(_unityClient.getConnection());
+        unlockedPartCommand.setUnlockedPartsList(puzzlePart.getID());
+
+        SendQueue.getInstance().addCommandToSend(unlockedPartCommand);
     }
 
     public void setPuzzle(Puzzle puzzle) {
         _puzzleManager = new PuzzleManager(puzzle);
+    }
+
+    public PuzzleManager getPuzzleManager() {
+        return _puzzleManager;
+    }
+
+    public QuestionManager getQuestionManager() {
+        return _questionManager;
     }
 
     public String getTeamName() {
@@ -49,9 +82,9 @@ public class Team {
      * @return Returns true, if the client has been associated with the team
      */
     public boolean registerNewClient(Client newClient) {
-        if(newClient.getClientType() == ClientType.Unity &&
-                (_unityClient == null || !_unityClient.isConnected())) {
-            _unityClient = newClient;
+        if(newClient instanceof UnityClient  && !_unityClient.isConnected()) {
+            _unityClient = (UnityClient) newClient;
+            _unityClient.setTeam(this);
             _unityClient.swapClientState(new NotReadyClientState(_unityClient));
 
             return true;
@@ -67,38 +100,31 @@ public class Team {
      * in use or it doesnt belong to this team
      */
     public boolean registerReconnectedClient(Client client) {
-        switch (client.getClientType()) {
-            case Unity:
-                if(_unityClient == null || !_unityClient.isConnected()) {
-                    _unityClient = client;
-                    _unityClient.swapClientState(new NotReadyClientState(_unityClient));
+        if(client instanceof UnityClient && !_unityClient.isConnected()) {
+            _unityClient = (UnityClient) client;
+            _unityClient.setTeam(this);
+            _unityClient.swapClientState(new NotReadyClientState(_unityClient));
 
-                    return true;
-                }
+            return true;
+        } else if(client instanceof MobileClient && !_mobileClient.isConnected() &&
+                    Objects.equals(_mobileClientID, client.getClientID())) {
 
-                break;
-            case Mobile:
-                if(Objects.equals(_mobileClientID, client.getClientID())) {
-                    if(_mobileClient == null || !_mobileClient.isConnected()) {
-                        _mobileClient = client;
-                        _mobileClient.swapClientState(new NotReadyClientState(_mobileClient));
+            _mobileClient = (MobileClient) client;
+            _mobileClient.setTeam(this);
+            _mobileClient.swapClientState(new NotReadyClientState(_mobileClient));
 
-                        return true;
-                    }
-                }
+            return true;
         }
 
         return false;
     }
 
     public boolean isTeamReady() {
-        return _mobileClient != null && _mobileClient.isReady() &&
-                _unityClient != null && _unityClient.isReady();
+        return _mobileClient.isReady() && _unityClient.isReady();
     }
 
     public boolean belongsToTeam(ClientID clientID) {
-        return (_mobileClient != null && Objects.equals(_mobileClient.getClientID(), clientID)) ||
-                (_unityClient != null && Objects.equals(_unityClient.getClientID(), clientID));
+        return Objects.equals(_mobileClient.getClientID(), clientID) || Objects.equals(_unityClient.getClientID(), clientID);
     }
 
     public Client getClientByID(ClientID clientID) {
@@ -114,7 +140,7 @@ public class Team {
     }
 
     public void clientDisconnected(CommandConnection connection) {
-        if(_mobileClient != null && _mobileClient.isConnected()) {
+        if(_mobileClient.isConnected()) {
             if(Objects.equals(_mobileClient.getConnection(), connection)) {
                 _mobileClient.swapClientState(new NotConnectedClientState(_mobileClient), true);
                 _mobileClient.setConnection(null);
@@ -123,27 +149,29 @@ public class Team {
             }
         }
 
-        if(_unityClient != null && _unityClient.isConnected()) {
+        if(_unityClient.isConnected()) {
             if(Objects.equals(_unityClient.getConnection(), connection)) {
                 _unityClient.swapClientState(new NotConnectedClientState(_unityClient), true);
                 _unityClient.setConnection(null);
             } else {
-                //FIXME dont set it automatically to ReadyClient
-                _unityClient.swapClientState(new ReadyClientState(_unityClient), true);
+                if(!(_unityClient.getCurrentState() instanceof NotReadyClientState ||
+                        _unityClient.getCurrentState() instanceof ReadyClientState)) {
+                    _unityClient.swapClientState(new ReadyClientState(_unityClient), true);
+                }
             }
         }
     }
 
-    public List<CommandConnection> getConnections() {
-        List<CommandConnection> connectionList = new LinkedList<>();
+    public List<Client> getClients() {
+        List<Client> clientList = new LinkedList<>();
         if(_unityClient.isConnected()) {
-            connectionList.add(_unityClient.getConnection());
+            clientList.add(_unityClient);
         }
 
         if(_mobileClient.isConnected()) {
-            connectionList.add(_mobileClient.getConnection());
+            clientList.add(_mobileClient);
         }
 
-        return connectionList;
+        return clientList;
     }
 }

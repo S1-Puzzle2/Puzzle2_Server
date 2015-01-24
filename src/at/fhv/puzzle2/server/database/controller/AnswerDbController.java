@@ -40,7 +40,7 @@ public class AnswerDbController extends DbController {
      * @param questionID Integer ID of the question, the answers belong to
      * @throws SQLException
      */
-    public void persistAnswerList(List<Answer> answerList, Integer questionID) throws SQLException {
+    void persistAnswerList(List<Answer> answerList, Integer questionID) throws SQLException {
         String query = "INSERT INTO " + DbTableHelper.ANSWER_TABLE +
                 "(" + DBColumnHelper.ANSWER_TEXT + ", " + DBColumnHelper.ANSWER_IS_CORRECT + ", "
                 + DBColumnHelper.ANSWER_QUESTION_REF + ") VALUES (?, ?, ?)";

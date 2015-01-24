@@ -2,22 +2,52 @@ package at.fhv.puzzle2.server.users;
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
+import at.fhv.puzzle2.server.Configuration;
 import at.fhv.puzzle2.server.entity.Puzzle;
-import at.fhv.puzzle2.server.logic.manager.QuestionManager;
 import at.fhv.puzzle2.server.users.client.Client;
-import at.fhv.puzzle2.server.users.client.ClientType;
+import at.fhv.puzzle2.server.users.client.ConfiguratorClient;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 public class ClientManager {
-    private Team _team1;
-    private Team _team2;
+    private final Team _team1;
+    private final Team _team2;
 
     private Client _configurator;
 
-    public ClientManager(QuestionManager questionManager) {
-        _team1 = new Team("Team1", (QuestionManager) questionManager.clone());
-        _team2 = new Team("Team2", (QuestionManager) questionManager.clone());
+    public ClientManager() {
+        //Load all team names from the configuration file
+        Configuration configuration = Configuration.getInstance();
+        List<String> teamNames = configuration.getList("game.team_names", String.class);
+
+        _team1 = createTeam(teamNames, "Team1");
+        _team2 = createTeam(teamNames, "Team2");
+    }
+
+    private Team createTeam(List<String> teamNames, String defaultName) {
+        String teamName = getRandomNameFromList(teamNames);
+        if(teamName == null) {
+            return new Team(defaultName);
+        }
+
+        return new Team(teamName);
+    }
+
+    private String getRandomNameFromList(List<String> names) {
+        Random random = new Random(System.nanoTime());
+
+        if(names.size() <= 1) {
+            return null;
+        }
+
+        int nameIndex = random.nextInt(names.size() - 1);
+        String name = names.get(nameIndex);
+        names.remove(nameIndex);
+
+        return name;
     }
 
     public void setPuzzle(Puzzle puzzle) {
@@ -31,6 +61,18 @@ public class ClientManager {
 
     public boolean belongsToAnyTeam(ClientID clientID) {
         return _team1.belongsToTeam(clientID) || _team2.belongsToTeam(clientID);
+    }
+
+    public Team getTeamOfClient(Client client) {
+        if(_team1.belongsToTeam(client.getClientID())) {
+            return _team1;
+        }
+
+        if(_team2.belongsToTeam(client.getClientID())) {
+            return _team2;
+        }
+
+        return null;
     }
 
     public Client getClientByID(ClientID clientID) {
@@ -50,7 +92,7 @@ public class ClientManager {
     }
 
     public boolean registerNewClient(Client client) {
-        if(client.getClientType() == ClientType.Configurator) {
+        if(client instanceof ConfiguratorClient) {
             if(_configurator == null) {
                 _configurator = client;
 
@@ -62,7 +104,7 @@ public class ClientManager {
     }
 
     public boolean registerReconnectedClient(Client client) {
-        if(client.getClientType() == ClientType.Configurator) {
+        if(client instanceof ConfiguratorClient) {
             return registerNewClient(client);
         }
 
@@ -81,5 +123,18 @@ public class ClientManager {
             _team1.clientDisconnected(connection);
             _team2.clientDisconnected(connection);
         }
+    }
+
+    public List<Client> getAllClients() {
+        List<Client> clientsList = new LinkedList<>();
+
+        if(_configurator != null && _configurator.isConnected()) {
+            clientsList.add(_configurator);
+        }
+
+        clientsList.addAll(_team1.getClients());
+        clientsList.addAll(_team2.getClients());
+
+        return clientsList;
     }
 }

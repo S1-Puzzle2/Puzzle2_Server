@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-public class PuzzleEntityManager extends EntityManager {
+class PuzzleEntityManager extends EntityManager {
     protected PuzzleEntityManager(Database database) {
         super(database);
     }

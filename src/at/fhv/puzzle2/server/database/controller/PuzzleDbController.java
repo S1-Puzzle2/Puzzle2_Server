@@ -31,6 +31,17 @@ public class PuzzleDbController extends DbController {
         return puzzleList;
     }
 
+    public Puzzle getPuzzleByName(String name) throws SQLException {
+        String query = "SELECT * FROM " + DbTableHelper.PUZZLE_TABLE + " WHERE " + DBColumnHelper.PUZZLE_NAME + " LIKE '" + name + "'";
+
+        ResultSet resultSet = _connection.executeQuery(query);
+        if(resultSet.next()) {
+            return new Puzzle(resultSet.getInt(DBColumnHelper.ID), resultSet.getString(DBColumnHelper.PUZZLE_NAME));
+        }
+
+        return null;
+    }
+
     /**
      * Stores the puzzle inside the database and sets the ID of the puzzle
      * @param puzzle
@@ -38,7 +49,7 @@ public class PuzzleDbController extends DbController {
      */
     public void persistPuzzle(Puzzle puzzle) throws SQLException {
         String query = "INSERT INTO " + DbTableHelper.PUZZLE_TABLE +
-                " (" + DBColumnHelper.PUZZLE_NAME + ") VALUES (" + puzzle.getName() + ")";
+                " (" + DBColumnHelper.PUZZLE_NAME + ") VALUES ('" + puzzle.getName() + "')";
 
         puzzle.setID(_connection.executeSingleUpdateOrInsert(query));
     }

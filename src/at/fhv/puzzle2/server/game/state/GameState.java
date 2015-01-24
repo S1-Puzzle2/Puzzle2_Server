@@ -4,23 +4,29 @@ import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.RegisteredCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
-import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.game.Game;
+import at.fhv.puzzle2.server.users.ClientManager;
 
 public abstract class GameState {
-    protected Game _game;
-    protected ClientManager _clientManager;
+    final Game _game;
+    final ClientManager _clientManager;
 
-    public GameState(Game game, ClientManager clientManager) {
+    GameState(Game game, ClientManager clientManager) {
         _game = game;
         _clientManager = clientManager;
     }
 
     public abstract void processCommand(Command command);
-    public abstract void processDisconnectedClient(CommandConnection connection);
+
+    public GameState processDisconnectedClient(CommandConnection connection) {
+        _clientManager.clientDisconnected(connection);
+
+        return null;
+    }
+
     public abstract boolean commandAllowedInGameState(Command command);
 
-    protected boolean isClassOf(Object command, Class<?>... classes) {
+    boolean isClassOf(Object command, Class<?>... classes) {
         for(Class tmpClass : classes) {
             if(tmpClass.isInstance(command)) {
                 return true;
@@ -38,7 +44,5 @@ public abstract class GameState {
         return registeredCommand;
     }
 
-    protected RegisteredCommand sendRegisteredCommand(CommandConnection connection, boolean isRegistered) {
-        return createRegisterCommand(connection, null, isRegistered);
-    }
+    public abstract void enter();
 }
