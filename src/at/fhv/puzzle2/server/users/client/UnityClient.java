@@ -26,6 +26,11 @@ public class UnityClient extends Client {
 
     @Override
     public ClientState fillDataInState(ClientState state) {
+        if(state instanceof SolvePuzzleClientState) {
+            SolvePuzzleClientState solvePuzzleClientState = (SolvePuzzleClientState) state;
+            solvePuzzleClientState.setPuzzleManager(_team.getPuzzleManager());
+        }
+
         return state;
     }
 
