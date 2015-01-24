@@ -1,0 +1,13 @@
+[server]
+broadcast_message = "PUZZLE2"
+loop_time = 500 #Zeit eines Gameloops in Millisekunden
+
+[database]
+host = "localhost"
+port = 3306 #Default mysql port ist 3306
+database = "puzzle2" # Datenbank, welche verwendet werden soll
+user = "root"
+password = "root"
+
+[game]
+team_names = ["Epic Team", "DAUs", "Die Schürzenjäger", "Ghetto Gangsters"]
