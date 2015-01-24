@@ -9,6 +9,7 @@ import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
+import at.fhv.puzzle2.server.users.Team;
 import at.fhv.puzzle2.server.users.client.Client;
 
 import java.util.List;
@@ -20,9 +21,19 @@ public class GameRunningState extends GameState {
     }
 
     @Override
-    public void processCommand(Command command) {
+    public GameState processCommand(Command command) {
         Client client = _clientManager.getClientByID(command.getClientID());
-        client.processCommand(command);
+
+        if(command instanceof PuzzleFinishedCommand) {
+            Team team = _clientManager.getTeamOfClient(client);
+            if(team.isMobileFinished()) {
+                _clientManager.gameFinished(team);
+            }
+        } else {
+            client.processCommand(command);
+        }
+
+        return null;
     }
 
     @Override
@@ -30,7 +41,7 @@ public class GameRunningState extends GameState {
         super.processDisconnectedClient(connection);
 
         if(!_clientManager.areAllReady()) {
-            return new BeforeGameStartState(_game, _clientManager);
+            return new GamePausedState(_game, _clientManager);
         }
 
         return null;
@@ -44,7 +55,7 @@ public class GameRunningState extends GameState {
     }
 
     @Override
-    public void enter() {
+    public void enter(GameState lastState) {
         List<Client> clientList = _clientManager.getAllClients();
 
         for(Client client: clientList) {
@@ -52,7 +63,11 @@ public class GameRunningState extends GameState {
             gameStartCommand.setConnection(client.getConnection());
             gameStartCommand.setTime(0);
 
-            client.swapToLastStateOrDefault();
+            if(lastState instanceof BeforeGameStartState) {
+                client.swapToDefaultState();
+            } else if(lastState instanceof GamePausedState) {
+                client.swapToLastState();
+            }
 
             SendQueue.getInstance().addCommandToSend(gameStartCommand);
         }
