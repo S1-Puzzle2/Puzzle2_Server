@@ -39,4 +39,8 @@ public class DatabaseConnection {
     public PreparedStatement createPreparedStatement(String query) throws SQLException {
         return createPreparedStatement(query, Statement.NO_GENERATED_KEYS);
     }
+
+    public void close() throws SQLException {
+        _connection.close();
+    }
 }

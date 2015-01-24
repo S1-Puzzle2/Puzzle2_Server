@@ -16,6 +16,10 @@ public class Database {
         _connection = new DatabaseConnection(DriverManager.getConnection(dsn, user, password));
     }
 
+    public void closeConnection() throws SQLException {
+        _connection.close();
+    }
+
     public QuestionDbController getQuestionController() {
         return new QuestionDbController(_connection);
     }
