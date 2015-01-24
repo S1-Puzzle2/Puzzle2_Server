@@ -36,13 +36,5 @@ public abstract class GameState {
         return false;
     }
 
-    protected RegisteredCommand createRegisterCommand(final CommandConnection connection, ClientID clientID, boolean isRegistered) {
-        RegisteredCommand registeredCommand = new RegisteredCommand(clientID);
-        registeredCommand.setRegistered(isRegistered);
-        registeredCommand.setConnection(connection);
-
-        return registeredCommand;
-    }
-
     public abstract void enter();
 }
