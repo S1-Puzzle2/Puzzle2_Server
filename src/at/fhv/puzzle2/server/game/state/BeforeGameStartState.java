@@ -1,4 +1,4 @@
-package at.fhv.puzzle2.server.state;
+package at.fhv.puzzle2.server.game.state;
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
@@ -12,7 +12,7 @@ import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.client.ClientType;
 import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
-import at.fhv.puzzle2.server.logic.Game;
+import at.fhv.puzzle2.server.game.Game;
 
 import java.util.LinkedList;
 import java.util.List;

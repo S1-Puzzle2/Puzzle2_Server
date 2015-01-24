@@ -1,4 +1,4 @@
-package at.fhv.puzzle2.server.state;
+package at.fhv.puzzle2.server.game.state;
 
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.mobile.BarcodeScannedCommand;
@@ -7,7 +7,7 @@ import at.fhv.puzzle2.communication.application.command.commands.unity.PuzzleFin
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.users.client.Client;
 import at.fhv.puzzle2.server.users.ClientManager;
-import at.fhv.puzzle2.server.logic.Game;
+import at.fhv.puzzle2.server.game.Game;
 
 public class GameRunningState extends GameState {
 

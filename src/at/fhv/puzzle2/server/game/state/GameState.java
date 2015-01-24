@@ -1,11 +1,11 @@
-package at.fhv.puzzle2.server.state;
+package at.fhv.puzzle2.server.game.state;
 
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.RegisteredCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.users.ClientManager;
-import at.fhv.puzzle2.server.logic.Game;
+import at.fhv.puzzle2.server.game.Game;
 
 public abstract class GameState {
     protected Game _game;

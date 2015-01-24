@@ -1,4 +1,4 @@
-package at.fhv.puzzle2.server.logic;
+package at.fhv.puzzle2.server.game;
 
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
