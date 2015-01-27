@@ -54,6 +54,7 @@ public class BeforeGameStartState extends PreGameRunningState {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        //} else if(command instanceof SetP)
         } else {
             client.processCommand(command);
         }

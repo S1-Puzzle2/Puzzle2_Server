@@ -1,6 +1,7 @@
 package at.fhv.puzzle2.server.game.state;
 
 import at.fhv.puzzle2.communication.application.command.Command;
+import at.fhv.puzzle2.communication.application.command.commands.configurator.GetPuzzleListCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
