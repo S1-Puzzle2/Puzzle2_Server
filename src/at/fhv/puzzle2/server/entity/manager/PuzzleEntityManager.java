@@ -4,13 +4,14 @@ import at.fhv.puzzle2.server.database.Database;
 import at.fhv.puzzle2.server.database.controller.PuzzleDbController;
 import at.fhv.puzzle2.server.database.controller.PuzzlePartDbController;
 import at.fhv.puzzle2.server.entity.Puzzle;
+import at.fhv.puzzle2.server.entity.PuzzlePart;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-class PuzzleEntityManager extends EntityManager {
-    protected PuzzleEntityManager(Database database) {
+public class PuzzleEntityManager extends EntityManager {
+    public PuzzleEntityManager(Database database) {
         super(database);
     }
 
@@ -47,6 +48,13 @@ class PuzzleEntityManager extends EntityManager {
         PuzzlePartDbController puzzlePartDbController = _database.getPuzzlePartController();
 
         puzzleDbController.persistPuzzle(puzzle);
-        puzzlePartDbController.persistPuzzlePartList(puzzle.getPartsList(), puzzle);
+    }
+
+    public void storePuzzlePart(PuzzlePart puzzlePart, String puzzleName) throws SQLException {
+        PuzzleDbController puzzleDbController = Database.getInstance().getPuzzleController();
+        PuzzlePartDbController puzzlePartDbController = Database.getInstance().getPuzzlePartController();
+
+        Puzzle puzzle = puzzleDbController.getPuzzleByName(puzzleName);
+        puzzlePartDbController.persistPuzzlePart(puzzlePart, puzzle);
     }
 }
