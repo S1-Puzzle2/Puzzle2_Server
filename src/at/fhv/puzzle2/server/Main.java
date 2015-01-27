@@ -2,6 +2,7 @@ package at.fhv.puzzle2.server;
 
 import at.fhv.puzzle2.communication.CommunicationManager;
 import at.fhv.puzzle2.communication.connection.protocoll.ethernet.tcp.TCPEndpoint;
+import at.fhv.puzzle2.logging.Exception.LogFormatterUnknownException;
 import at.fhv.puzzle2.logging.Logger;
 import at.fhv.puzzle2.server.database.Database;
 import at.fhv.puzzle2.server.logic.GameLoop;
@@ -47,10 +48,10 @@ public class Main {
 
             Database.getInstance().closeConnection();
             Logger.getLogger().close();
-        } catch (IOException | SQLException e) {
-            e.printStackTrace();
         } catch (ConfigurationException e) {
             System.out.println("Configuration-Fehler: " + e.getMessage());
+        } catch (IOException | SQLException | LogFormatterUnknownException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -1,22 +1,36 @@
 package at.fhv.puzzle2.server;
 
+import at.fhv.puzzle2.logging.Exception.LogFormatterUnknownException;
 import at.fhv.puzzle2.logging.LogLevel;
 import at.fhv.puzzle2.logging.Logger;
-import at.fhv.puzzle2.logging.formatter.SimpleFormatter;
+import at.fhv.puzzle2.logging.LoggerFactory;
+import at.fhv.puzzle2.logging.formatter.LogFormatter;
 import at.fhv.puzzle2.logging.sink.ConsoleSink;
 import at.fhv.puzzle2.server.database.Database;
 
 import java.sql.SQLException;
 
 public class Initializer {
-    public static void initialize() throws ConfigurationException, SQLException {
+    public static void initialize() throws ConfigurationException, SQLException, LogFormatterUnknownException {
         //Initialize configuration and database
         Configuration.initConfiguration();
         Database.initDatabase();
 
         //Instantiate the loggers now
-        //TODO read the configuration and use that one
-        Logger.createLogger(new SimpleFormatter(), LogLevel.TRACE);
+        Configuration loggerConfig = Configuration.getInstance().getConfiguration("logger");
+
+        LogFormatter formatter = LoggerFactory.createFormatter(loggerConfig.getStringOrDefault("formatter", "SimpleFormatter"));
+
+        String logLevelString = loggerConfig.getStringOrDefault("logLevel", "Warning");
+        LogLevel logLevel = LogLevel.stringToLevel(logLevelString);
+        if(logLevel == null) {
+            throw new ConfigurationException("Loglevel '" + logLevelString + "' is unknown");
+        }
+
+
+        Logger.createLogger(formatter, logLevel);
+
+        //TODO read log sinks
         Logger.appendLogSink(new ConsoleSink());
     }
 }
