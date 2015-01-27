@@ -38,7 +38,7 @@ public class PuzzlePartDbController extends DbController {
 
             //Read the BLOB from the result
             int b;
-            while((b = imageStream.read()) != 0) {
+            while((b = imageStream.read()) != -1) {
                 byteArrayStream.write(b);
             }
 
