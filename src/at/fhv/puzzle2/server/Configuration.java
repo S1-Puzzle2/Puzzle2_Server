@@ -35,6 +35,10 @@ public class Configuration {
         return _config.getList(key, valueClass);
     }
 
+    public Configuration getConfiguration(String key) {
+        return new Configuration(_config.getTable(key));
+    }
+
     public static void initConfiguration() throws ConfigurationException {
         File configFile = new File("config.toml");
         if(!configFile.isFile() && !configFile.exists()) {
