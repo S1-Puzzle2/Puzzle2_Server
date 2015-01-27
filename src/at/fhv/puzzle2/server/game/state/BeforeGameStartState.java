@@ -9,10 +9,9 @@ import at.fhv.puzzle2.communication.application.command.commands.configurator.Cr
 import at.fhv.puzzle2.communication.application.command.commands.configurator.CreatePuzzlePartCommand;
 import at.fhv.puzzle2.communication.application.command.commands.unity.ShowQRCommand;
 import at.fhv.puzzle2.server.database.Database;
-import at.fhv.puzzle2.server.database.controller.PuzzleDbController;
-import at.fhv.puzzle2.server.database.controller.PuzzlePartDbController;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
+import at.fhv.puzzle2.server.entity.manager.PuzzleEntityManager;
 import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.client.Client;
@@ -33,24 +32,25 @@ public class BeforeGameStartState extends PreGameRunningState {
             return super.processCommand(command);
 
         } else if(command instanceof CreatePuzzleCommand) {
-            PuzzleDbController puzzleDbController = Database.getInstance().getPuzzleController();
             Puzzle puzzle = new Puzzle(((CreatePuzzleCommand) command).getPuzzleName());
 
+            PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
             try {
-                puzzleDbController.persistPuzzle(puzzle);
+                puzzleEntityManager.storePuzzle(puzzle);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }else if(command instanceof CreatePuzzlePartCommand) {
+            PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
+
             CreatePuzzlePartCommand createPuzzlePartCommand = (CreatePuzzlePartCommand) command;
             PuzzlePart part = new PuzzlePart(createPuzzlePartCommand.getUuid(), createPuzzlePartCommand.getOrder());
-            part.setImage(((CreatePuzzlePartCommand) command).getImage());
+            part.setImage(createPuzzlePartCommand.getImage());
 
-            PuzzleDbController puzzleDbController = Database.getInstance().getPuzzleController();
-            PuzzlePartDbController puzzlePartDbController = Database.getInstance().getPuzzlePartController();
+            String puzzleName = createPuzzlePartCommand.getPuzzleName();
+
             try {
-                Puzzle puzzle = puzzleDbController.getPuzzleByName(((CreatePuzzlePartCommand) command).getPuzzleName());
-                puzzlePartDbController.persistPuzzlePart(part, puzzle);
+                puzzleEntityManager.storePuzzlePart(part, puzzleName);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
