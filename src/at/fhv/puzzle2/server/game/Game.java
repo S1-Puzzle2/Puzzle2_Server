@@ -5,12 +5,17 @@ import at.fhv.puzzle2.communication.application.command.commands.error.NotAllowe
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.logging.Logger;
 import at.fhv.puzzle2.server.SendQueue;
+import at.fhv.puzzle2.server.database.Database;
 import at.fhv.puzzle2.server.entity.Puzzle;
+import at.fhv.puzzle2.server.entity.manager.PuzzleEntityManager;
 import at.fhv.puzzle2.server.game.state.BeforeGameStartState;
 import at.fhv.puzzle2.server.game.state.GamePausedState;
 import at.fhv.puzzle2.server.game.state.GameRunningState;
 import at.fhv.puzzle2.server.game.state.GameState;
 import at.fhv.puzzle2.server.users.ClientManager;
+
+import java.io.IOException;
+import java.sql.SQLException;
 
 public class Game {
     private static final String TAG = "server.Game";
@@ -22,6 +27,14 @@ public class Game {
     public Game() {
         _clientManager = new ClientManager();
         _currentState = new BeforeGameStartState(this, _clientManager);
+
+        //TODO currently a hacked version to retrieve the first puzzle
+        PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
+        try {
+            setPuzzle(puzzleEntityManager.getPuzzleByID(puzzleEntityManager.getPuzzleList().get(0).getID()));
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void processCommand(Command command) {
