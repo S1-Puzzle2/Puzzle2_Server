@@ -15,7 +15,7 @@ team_names = ["Epic Team", "DAUs", "Die Schürzenjäger", "Ghetto Gangsters"]
 #Logger wird noch nicht ausgelesen, kommt noch
 [logger]
 #Mögliche Loglevel sind: Error, Warning, Info, Debug, Trace
-logLevel = "Trace"
+logLevel = "Info"
 formatter = "SimpleFormatter"
 
 [[logger.sink]]
