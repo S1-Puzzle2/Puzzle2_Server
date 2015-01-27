@@ -76,6 +76,8 @@ public class Team {
 
     public void setPuzzle(Puzzle puzzle) {
         _puzzleManager = new PuzzleManager(puzzle);
+
+        //TODO inform the clients
     }
 
     public PuzzleManager getPuzzleManager() {
