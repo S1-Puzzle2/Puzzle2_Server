@@ -93,10 +93,7 @@ public abstract class PreGameRunningState extends GameState {
                 gameStateCommand.setPartsList(idList);
             }
 
-            List<Integer> idList = new LinkedList<>();
-            idList.add(1);
-
-            gameStateCommand.setPartsList(idList);
+            gameStateCommand.setTeamName(_clientManager.getTeamOfClient(client).getTeamName());
 
             SendQueue.getInstance().addCommandToSend(gameStateCommand);
         } else if(command instanceof GetPuzzlePartCommand) {
