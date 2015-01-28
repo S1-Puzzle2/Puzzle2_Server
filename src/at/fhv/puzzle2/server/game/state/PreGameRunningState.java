@@ -29,9 +29,11 @@ public abstract class PreGameRunningState extends GameState {
         if(command instanceof ReadyCommand) {
             client.swapClientState(new ReadyClientState(client));
 
-            if(_clientManager.areAllReady() && _game.getPuzzle() != null) {
+            /*if(_clientManager.areAllReady() && _game.getPuzzle() != null) {
                 return new GameRunningState(_game, _clientManager);
-            }
+            }*/
+            //TODO this is a hack to test gamestart
+            return new GameRunningState(_game, _clientManager);
         } else if(command instanceof RegisterCommand) {
             RegisterCommand registerCommand = (RegisterCommand) command;
 
