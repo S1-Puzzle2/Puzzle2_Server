@@ -53,7 +53,10 @@ public class Game {
                 Logger.getLogger().info(TAG, "Game paused...");
             }
 
+            GameState previousState = _currentState;
+
             _currentState = state;
+            _currentState.enter(previousState);
         }
     }
 
