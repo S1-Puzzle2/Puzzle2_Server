@@ -63,13 +63,13 @@ public class GameRunningState extends GameState {
             gameStartCommand.setConnection(client.getConnection());
             gameStartCommand.setTime(0);
 
+            SendQueue.getInstance().addCommandToSend(gameStartCommand);
+
             if(lastState instanceof BeforeGameStartState) {
                 client.swapToDefaultState();
             } else if(lastState instanceof GamePausedState) {
                 client.swapToLastState();
             }
-
-            SendQueue.getInstance().addCommandToSend(gameStartCommand);
         }
     }
 }
