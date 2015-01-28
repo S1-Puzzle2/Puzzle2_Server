@@ -64,7 +64,7 @@ public class BeforeGameStartState extends PreGameRunningState {
 
     @Override
     public boolean commandAllowedInGameState(Command command) {
-        return isClassOf(command.getClass(),
+        return isClassOf(command,
                 RegisterCommand.class, GetGameStateCommand.class, ReadyCommand.class,
                 GetPuzzlePartCommand.class, CreatePuzzleCommand.class,
                 CreatePuzzlePartCommand.class, ShowQRCommand.class

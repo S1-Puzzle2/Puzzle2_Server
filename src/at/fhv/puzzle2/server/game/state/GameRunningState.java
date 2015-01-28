@@ -49,7 +49,7 @@ public class GameRunningState extends GameState {
 
     @Override
     public boolean commandAllowedInGameState(Command command) {
-        return isClassOf(command.getClass(),
+        return isClassOf(command,
                 BarcodeScannedCommand.class, QuestionAnsweredCommand.class,
                 PuzzleFinishedCommand.class);
     }
