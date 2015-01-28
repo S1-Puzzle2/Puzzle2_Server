@@ -38,9 +38,12 @@ public class Game {
     }
 
     public void processCommand(Command command) {
-        if(_currentState.commandAllowedInGameState(command)) {
+        if(!_currentState.commandAllowedInGameState(command)) {
             NotAllowedCommand notAllowedCommand = new NotAllowedCommand(command.getClientID());
-            SendQueue.getInstance().addCommandToSend(notAllowedCommand);
+            notAllowedCommand.setConnection(command.getConnection());
+            //notAllowedCommand.setCommandType(command.);
+
+            //SendQueue.getInstance().addCommandToSend(notAllowedCommand);
 
             return;
         }
@@ -49,8 +52,6 @@ public class Game {
         if(state != null) {
             if(state instanceof GameRunningState) {
                 Logger.getLogger().info(TAG, "Game started...");
-            } else if(state instanceof GamePausedState) {
-                Logger.getLogger().info(TAG, "Game paused...");
             }
 
             GameState previousState = _currentState;
@@ -65,6 +66,10 @@ public class Game {
 
         if(state != null) {
             GameState lastState = _currentState;
+
+            if(state instanceof GamePausedState) {
+                Logger.getLogger().info(TAG, "Game paused...");
+            }
             _currentState = state;
 
             _currentState.enter(lastState);
@@ -81,6 +86,7 @@ public class Game {
 
     public void setPuzzle(Puzzle puzzle) {
         _puzzle = puzzle;
+
         _clientManager.setPuzzle(puzzle);
     }
 }
