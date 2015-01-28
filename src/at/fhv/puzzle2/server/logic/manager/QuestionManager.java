@@ -20,7 +20,12 @@ public class QuestionManager implements Cloneable {
     }
 
     public Question getNextRandomQuestion() {
-        Question tmpQuestion = _questionList.get(_random.nextInt(_questionList.size() - 1));
+        Question tmpQuestion;
+        if(_questionList.size() == 0) {
+            return null;
+        } else {
+            tmpQuestion = _questionList.get(_random.nextInt(_questionList.size()));
+        }
 
         _questionList = _questionList.stream().
                 filter(question -> !Objects.equals(question.getID(), tmpQuestion.getID())).

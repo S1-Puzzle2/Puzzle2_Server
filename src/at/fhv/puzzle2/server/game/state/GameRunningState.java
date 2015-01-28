@@ -56,7 +56,7 @@ public class GameRunningState extends GameState {
 
     @Override
     public void enter(GameState lastState) {
-        List<Client> clientList = _clientManager.getAllClients();
+        List<Client> clientList = _clientManager.getConnectedClients();
 
         for(Client client: clientList) {
             GameStartCommand gameStartCommand = new GameStartCommand(client.getClientID());

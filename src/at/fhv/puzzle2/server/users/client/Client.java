@@ -20,7 +20,7 @@ public abstract class Client {
     Team _team;
 
     ClientState _currentState;
-    private final Stack<ClientState> _stateStack;
+    private Stack<ClientState> _stateStack;
 
     Client(CommandConnection connection, ClientID clientID) {
         _connection = connection;
@@ -86,6 +86,10 @@ public abstract class Client {
 
         _currentState = state;
         _currentState.enter();
+    }
+
+    public void copyStateStackTo(Client newClient) {
+        newClient._stateStack = _stateStack;
     }
 
     public void swapToLastState() {

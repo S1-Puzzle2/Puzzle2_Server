@@ -1,6 +1,7 @@
 package at.fhv.puzzle2.server.users;
 
 import at.fhv.puzzle2.communication.ClientID;
+import at.fhv.puzzle2.communication.application.command.commands.GameStateCommand;
 import at.fhv.puzzle2.communication.application.command.commands.unity.UnlockedPartCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.SendQueue;
@@ -22,6 +23,8 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+
+import static java.util.stream.Collectors.toCollection;
 
 public class Team {
     private final String _teamName;
@@ -77,7 +80,19 @@ public class Team {
     public void setPuzzle(Puzzle puzzle) {
         _puzzleManager = new PuzzleManager(puzzle);
 
-        //TODO inform the clients
+        List<Integer> idList = puzzle.getPartsList().stream().mapToInt(PuzzlePart::getID).boxed().collect(toCollection(LinkedList::new));
+
+        for(Client client: this.getConnectedClients()) {
+            GameStateCommand gameStateCommand = new GameStateCommand(client.getClientID());
+            gameStateCommand.setConnection(client.getConnection());
+            gameStateCommand.setPuzzleName(puzzle.getName());
+            gameStateCommand.setTeamName(this.getTeamName());
+
+
+            gameStateCommand.setPartsList(idList);
+
+            SendQueue.getInstance().addCommandToSend(gameStateCommand);
+        }
     }
 
     public PuzzleManager getPuzzleManager() {
@@ -99,6 +114,7 @@ public class Team {
      */
     public boolean registerNewClient(Client newClient) {
         if(newClient instanceof UnityClient  && !_unityClient.isConnected()) {
+            _unityClient.copyStateStackTo(newClient);
             _unityClient = (UnityClient) newClient;
             _unityClient.setTeam(this);
             _unityClient.swapClientState(new NotReadyClientState(_unityClient));
@@ -117,6 +133,7 @@ public class Team {
      */
     public boolean registerReconnectedClient(Client client) {
         if(client instanceof UnityClient && !_unityClient.isConnected()) {
+            _unityClient.copyStateStackTo(client);
             _unityClient = (UnityClient) client;
             _unityClient.setTeam(this);
             _unityClient.swapClientState(new NotReadyClientState(_unityClient));
@@ -125,6 +142,7 @@ public class Team {
         } else if(client instanceof MobileClient && !_mobileClient.isConnected() &&
                     Objects.equals(_mobileClientID, client.getClientID())) {
 
+            _mobileClient.copyStateStackTo(client);
             _mobileClient = (MobileClient) client;
             _mobileClient.setTeam(this);
             _mobileClient.swapClientState(new NotReadyClientState(_mobileClient));
@@ -156,29 +174,25 @@ public class Team {
     }
 
     public void clientDisconnected(CommandConnection connection) {
-        if(_mobileClient.isConnected()) {
-            if(Objects.equals(_mobileClient.getConnection(), connection)) {
-                _mobileClient.swapClientState(new NotConnectedClientState(_mobileClient), true);
-                _mobileClient.setConnection(null);
-            } else {
-                _mobileClient.swapClientState(new ReadyClientState(_mobileClient), true);
-            }
+        if(Objects.equals(_mobileClient.getConnection(), connection)) {
+            _mobileClient.swapClientState(new NotConnectedClientState(_mobileClient), true);
+            _mobileClient.setConnection(null);
+        } else {
+            _mobileClient.swapClientState(new ReadyClientState(_mobileClient), true);
         }
 
-        if(_unityClient.isConnected()) {
-            if(Objects.equals(_unityClient.getConnection(), connection)) {
-                _unityClient.swapClientState(new NotConnectedClientState(_unityClient), true);
-                _unityClient.setConnection(null);
-            } else {
-                if(!(_unityClient.getCurrentState() instanceof NotReadyClientState ||
-                        _unityClient.getCurrentState() instanceof ReadyClientState)) {
-                    _unityClient.swapClientState(new ReadyClientState(_unityClient), true);
-                }
+        if(Objects.equals(_unityClient.getConnection(), connection)) {
+            _unityClient.swapClientState(new NotConnectedClientState(_unityClient), true);
+            _unityClient.setConnection(null);
+        } else {
+            if(!(_unityClient.getCurrentState() instanceof NotReadyClientState ||
+                    _unityClient.getCurrentState() instanceof ReadyClientState)) {
+                _unityClient.swapClientState(new ReadyClientState(_unityClient), true);
             }
         }
     }
 
-    public List<Client> getClients() {
+    public List<Client> getConnectedClients() {
         List<Client> clientList = new LinkedList<>();
         if(_unityClient.isConnected()) {
             clientList.add(_unityClient);
@@ -187,6 +201,14 @@ public class Team {
         if(_mobileClient.isConnected()) {
             clientList.add(_mobileClient);
         }
+
+        return clientList;
+    }
+
+    public List<Client> getAllClients() {
+        List<Client> clientList = new LinkedList<>();
+        clientList.add(_unityClient);
+        clientList.add(_mobileClient);
 
         return clientList;
     }

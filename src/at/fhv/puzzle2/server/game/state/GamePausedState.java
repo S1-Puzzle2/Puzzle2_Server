@@ -28,7 +28,8 @@ public class GamePausedState extends PreGameRunningState {
     @Override
     public boolean commandAllowedInGameState(Command command) {
         return isClassOf(command, RegisterCommand.class,
-                GetGameStateCommand.class, GetPuzzlePartCommand.class);
+                GetGameStateCommand.class, GetPuzzlePartCommand.class,
+                ReadyCommand.class);
     }
 
     @Override
@@ -39,10 +40,13 @@ public class GamePausedState extends PreGameRunningState {
 
         for(Client client: clientList) {
             client.swapClientState(new ReadyClientState(client), true);
-            PauseCommand pauseCommand = new PauseCommand(client.getClientID());
-            pauseCommand.setConnection(client.getConnection());
 
-            SendQueue.getInstance().addCommandToSend(pauseCommand);
+            if(client.isConnected()) {
+                PauseCommand pauseCommand = new PauseCommand(client.getClientID());
+                pauseCommand.setConnection(client.getConnection());
+
+                SendQueue.getInstance().addCommandToSend(pauseCommand);
+            }
         }
     }
 }

@@ -5,9 +5,9 @@ import at.fhv.puzzle2.communication.application.command.commands.GetGameStateCom
 import at.fhv.puzzle2.communication.application.command.commands.GetPuzzlePartCommand;
 import at.fhv.puzzle2.communication.application.command.commands.ReadyCommand;
 import at.fhv.puzzle2.communication.application.command.commands.RegisterCommand;
-import at.fhv.puzzle2.communication.application.command.commands.configurator.CreatePuzzleCommand;
-import at.fhv.puzzle2.communication.application.command.commands.configurator.CreatePuzzlePartCommand;
+import at.fhv.puzzle2.communication.application.command.commands.configurator.*;
 import at.fhv.puzzle2.communication.application.command.commands.unity.ShowQRCommand;
+import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.database.Database;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
@@ -16,7 +16,13 @@ import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.client.Client;
 
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toCollection;
 
 public class BeforeGameStartState extends PreGameRunningState {
     public BeforeGameStartState(Game game, ClientManager clientManager) {
@@ -54,7 +60,42 @@ public class BeforeGameStartState extends PreGameRunningState {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        //} else if(command instanceof SetP)
+        }else if(command instanceof GetPuzzleListCommand) {
+            PuzzleListCommand puzzleListCommand = new PuzzleListCommand(command.getClientID());
+            puzzleListCommand.setConnection(command.getConnection());
+
+            PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
+            try {
+                List<Puzzle> puzzleList = puzzleEntityManager.getPuzzleList();
+                List<String> nameList = puzzleList.stream().map(new Function<Puzzle, String>() {
+                    @Override
+                    public String apply(Puzzle puzzle) {
+                        return puzzle.getName();
+                    }
+                }).collect(toCollection(LinkedList::new));
+
+                puzzleListCommand.setPuzzleList(nameList);
+
+                SendQueue.getInstance().addCommandToSend(puzzleListCommand);
+            } catch (SQLException | IOException e) {
+                e.printStackTrace();
+            }
+
+        } else if(command instanceof SetPuzzleCommand) {
+            PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
+            try {
+                Puzzle puzzle = puzzleEntityManager.getPuzzleByName(((SetPuzzleCommand) command).getPuzzleName());
+                _game.setPuzzle(puzzle);
+            } catch (SQLException e) {
+                //TODO
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+
+            //} else if(command instanceof SetP)
         } else {
             client.processCommand(command);
         }
@@ -67,7 +108,8 @@ public class BeforeGameStartState extends PreGameRunningState {
         return isClassOf(command,
                 RegisterCommand.class, GetGameStateCommand.class, ReadyCommand.class,
                 GetPuzzlePartCommand.class, CreatePuzzleCommand.class,
-                CreatePuzzlePartCommand.class, ShowQRCommand.class
+                CreatePuzzlePartCommand.class, ShowQRCommand.class,
+                SetPuzzleCommand.class, GetPuzzleListCommand.class
         );
     }
 

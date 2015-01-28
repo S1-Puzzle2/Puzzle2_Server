@@ -39,7 +39,6 @@ public class MobileClient extends Client {
     public ClientState fillDataInState(ClientState state) {
         if(state instanceof AnswerQuestionState) {
             Question question = _team.getQuestionManager().getNextRandomQuestion();
-            question.shuffleAnswers();
 
             ((AnswerQuestionState) state).setQuestion(question);
 

@@ -29,14 +29,9 @@ public class PuzzleManager {
             return null;
         }
 
-        PuzzlePart nextPart;
-        if(_availableParts.size() == 1) {
-            nextPart = _availableParts.get(0);
-        } else {
-            nextPart = _availableParts.get(_random.nextInt(_availableParts.size() - 1));
-        }
+        PuzzlePart nextPart = _availableParts.get(_random.nextInt(_availableParts.size()));
 
-        //Remove it from the list now
+        //Remove it from the list nw
         _availableParts.remove(nextPart);
 
         return nextPart;

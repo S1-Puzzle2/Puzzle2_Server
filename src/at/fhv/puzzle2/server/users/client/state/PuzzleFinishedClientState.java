@@ -21,11 +21,6 @@ public class PuzzleFinishedClientState extends ClientState {
         PuzzleFinishedCommand puzzleFinishedCommand = new PuzzleFinishedCommand(_client.getClientID());
         puzzleFinishedCommand.setConnection(_client.getConnection());
 
-        GameFinishedCommand gameFinishedCommand = new GameFinishedCommand(_client.getClientID());
-        gameFinishedCommand.setConnection(_client.getConnection());
-        gameFinishedCommand.setIsWinning(true);
-
         SendQueue.getInstance().addCommandToSend(puzzleFinishedCommand, 3000);
-        SendQueue.getInstance().addCommandToSend(gameFinishedCommand, 10000);
     }
 }

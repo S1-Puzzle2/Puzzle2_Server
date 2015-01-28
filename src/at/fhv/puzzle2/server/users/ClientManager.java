@@ -43,7 +43,7 @@ public class ClientManager {
             return null;
         }
 
-        int nameIndex = random.nextInt(names.size() - 1);
+        int nameIndex = random.nextInt(names.size());
         String name = names.get(nameIndex);
         names.remove(nameIndex);
 
@@ -59,7 +59,9 @@ public class ClientManager {
             _team2.gameFinished(true);
         }
 
-        _configurator.gameFinished(true);
+        if(_configurator != null) {
+            _configurator.gameFinished(true);
+        }
     }
 
     public void setPuzzle(Puzzle puzzle) {
@@ -136,12 +138,25 @@ public class ClientManager {
     public List<Client> getAllClients() {
         List<Client> clientsList = new LinkedList<>();
 
+        if(_configurator != null) {
+            clientsList.add(_configurator);
+        }
+
+        clientsList.addAll(_team1.getAllClients());
+        clientsList.addAll(_team2.getAllClients());
+
+        return clientsList;
+    }
+
+    public List<Client> getConnectedClients() {
+        List<Client> clientsList = new LinkedList<>();
+
         if(_configurator != null && _configurator.isConnected()) {
             clientsList.add(_configurator);
         }
 
-        clientsList.addAll(_team1.getClients());
-        clientsList.addAll(_team2.getClients());
+        clientsList.addAll(_team1.getConnectedClients());
+        clientsList.addAll(_team2.getConnectedClients());
 
         return clientsList;
     }

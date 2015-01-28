@@ -29,21 +29,21 @@ public class Game {
         _currentState = new BeforeGameStartState(this, _clientManager);
 
         //TODO currently a hacked version to retrieve the first puzzle
-        PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
+        /*PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
         try {
             setPuzzle(puzzleEntityManager.getPuzzleByID(puzzleEntityManager.getPuzzleList().get(0).getID()));
         } catch (SQLException | IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void processCommand(Command command) {
         if(!_currentState.commandAllowedInGameState(command)) {
             NotAllowedCommand notAllowedCommand = new NotAllowedCommand(command.getClientID());
             notAllowedCommand.setConnection(command.getConnection());
-            //notAllowedCommand.setCommandType(command.);
+            //notAllowedCommand.setCommandType(command);
 
-            //SendQueue.getInstance().addCommandToSend(notAllowedCommand);
+            SendQueue.getInstance().addCommandToSend(notAllowedCommand);
 
             return;
         }

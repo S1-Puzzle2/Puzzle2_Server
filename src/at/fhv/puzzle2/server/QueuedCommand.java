@@ -20,6 +20,8 @@ class QueuedCommand {
     }
 
     public void send() {
-        _command.getConnection().sendCommand(_command);
+        if(_command.getConnection() != null) {
+            _command.getConnection().sendCommand(_command);
+        }
     }
 }

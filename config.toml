@@ -10,12 +10,12 @@ user = "root"
 password = "root"
 
 [game]
-team_names = ["Epic Team", "DAUs", "Die Schürzenjäger", "Ghetto Gangsters"]
+team_names = ["Ghetto Gangsters", "Epic Team", "DAUs", "Die Schürzenjäger"]
 
 #Logger wird noch nicht ausgelesen, kommt noch
 [logger]
 #Mögliche Loglevel sind: Error, Warning, Info, Debug, Trace
-logLevel = "Info"
+logLevel = "Debug"
 formatter = "SimpleFormatter"
 
 [[logger.sink]]
