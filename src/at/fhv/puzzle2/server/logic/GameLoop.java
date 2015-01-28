@@ -44,12 +44,8 @@ public class GameLoop implements Runnable {
         //Get the loop time from the configuration
         Configuration configuration = Configuration.getInstance();
         sleepTime = configuration.getIntegerOrDefault("server.loop_time", 500);
-
-        Puzzle puzzle = new Puzzle(1, "Testpuzzle");
-        puzzle.addPuzzlePart(new PuzzlePart(1, "1234", 1));
-
-        _game.setPuzzle(puzzle);
     }
+
     @Override
     public void run() {
         while(_isRunning) {
