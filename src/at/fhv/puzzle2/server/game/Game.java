@@ -27,14 +27,6 @@ public class Game {
     public Game() {
         _clientManager = new ClientManager();
         _currentState = new BeforeGameStartState(this, _clientManager);
-
-        //TODO currently a hacked version to retrieve the first puzzle
-        /*PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
-        try {
-            setPuzzle(puzzleEntityManager.getPuzzleByID(puzzleEntityManager.getPuzzleList().get(0).getID()));
-        } catch (SQLException | IOException e) {
-            e.printStackTrace();
-        }*/
     }
 
     public void processCommand(Command command) {
