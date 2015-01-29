@@ -61,7 +61,7 @@ public class GameRunningState extends GameState {
         for(Client client: clientList) {
             GameStartCommand gameStartCommand = new GameStartCommand(client.getClientID());
             gameStartCommand.setConnection(client.getConnection());
-            gameStartCommand.setTime(0);
+            gameStartCommand.setTime(_game.getTimeElapsed());
 
             SendQueue.getInstance().addCommandToSend(gameStartCommand);
 
