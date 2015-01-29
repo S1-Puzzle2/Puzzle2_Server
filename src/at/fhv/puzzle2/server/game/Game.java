@@ -24,6 +24,8 @@ public class Game {
     private final ClientManager _clientManager;
     private Puzzle _puzzle = null;
 
+    private long _timeElapsed = 0;
+
     public Game() {
         _clientManager = new ClientManager();
         _currentState = new BeforeGameStartState(this, _clientManager);
@@ -51,6 +53,17 @@ public class Game {
             _currentState = state;
             _currentState.enter(previousState);
         }
+    }
+
+    public void timeElapsed(long time) {
+        if(_currentState instanceof GameRunningState) {
+            //Only advance the time, when the game is really running
+            _timeElapsed += time;
+        }
+    }
+
+    public long getTimeElapsed() {
+        return _timeElapsed;
     }
 
     public void processDisconnectedConnection(CommandConnection connection) {

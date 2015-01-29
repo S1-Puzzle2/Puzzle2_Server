@@ -65,10 +65,12 @@ public class GameLoop implements Runnable {
                 long diffTime = new Date().getTime() - startTime;
                 if(sleepTime - diffTime > 0) {
                     Thread.sleep(sleepTime - diffTime);
-                    _sendQueue.tick(sleepTime);
-                } else {
-                    _sendQueue.tick(sleepTime + diffTime);
                 }
+
+                long timeElapsed = Math.max(sleepTime, diffTime);
+
+                _sendQueue.tick(timeElapsed);
+                _game.timeElapsed(timeElapsed);
 
             } catch (InterruptedException e) {
                 //do nothing here
