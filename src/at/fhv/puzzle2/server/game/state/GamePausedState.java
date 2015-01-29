@@ -36,7 +36,10 @@ public class GamePausedState extends PreGameRunningState {
     public void enter(GameState lastState) {
         //Alright, so one of the clients disconnected. Now notify all other clients that the game
         //has paused and set their status to Ready
-        List<Client> clientList = _clientManager.getAllClients();
+
+        /* Only store the state of still connected clients, the disconnected client has already changed its state
+           team.clientDisconnected() */
+        List<Client> clientList = _clientManager.getConnectedClients();
 
         for(Client client: clientList) {
             client.swapClientState(new ReadyClientState(client), true);
