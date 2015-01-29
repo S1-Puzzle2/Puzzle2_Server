@@ -76,10 +76,6 @@ public class Game {
         }
     }
 
-    public boolean commandAllowed(Command command) {
-        return _currentState.commandAllowedInGameState(command);
-    }
-
     public Puzzle getPuzzle() {
         return _puzzle;
     }
