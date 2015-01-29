@@ -28,8 +28,7 @@ public class SearchPartClientState extends ClientState {
         }
 
         BarcodeScannedCommand barcodeScannedCommand = (BarcodeScannedCommand) command;
-        //boolean correctBarCode = Objects.equals(barcodeScannedCommand.getBarCode(), _puzzlePart.getBarcode());
-        boolean correctBarCode = true;
+        boolean correctBarCode = Objects.equals(barcodeScannedCommand.getBarCode(), _puzzlePart.getBarcode());
 
         BarCodeCorrectCommand barCodeCorrectCommand = new BarCodeCorrectCommand(_client.getClientID());
         barCodeCorrectCommand.setConnection(_client.getConnection());

@@ -29,20 +29,7 @@ public class PuzzlePartDbController extends DbController {
 
         List<PuzzlePart> partList = new LinkedList<>();
         while(result.next()) {
-            PuzzlePart part = new PuzzlePart(result.getInt(DBColumnHelper.ID),
-                    result.getString(DBColumnHelper.PART_BARCODE),
-                    result.getInt(DBColumnHelper.PART_ORDER));
-
-            InputStream imageStream = result.getBinaryStream(DBColumnHelper.PART_IMAGE_DATA);
-            ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-
-            //Read the BLOB from the result
-            int b;
-            while((b = imageStream.read()) != -1) {
-                byteArrayStream.write(b);
-            }
-
-            part.setImage(byteArrayStream.toByteArray());
+            PuzzlePart part = parsePart(result);
 
             partList.add(part);
         }
@@ -63,5 +50,35 @@ public class PuzzlePartDbController extends DbController {
         statement.setBinaryStream(4, part.getImageInputStream());
 
         part.setID(statement.executeUpdate());
+    }
+
+    public PuzzlePart getPuzzlePartByID(Integer id) throws SQLException, IOException {
+        String query = "SELECT * FROM  " + DbTableHelper.PUZZLE_PART_TABLE + " WHERE " + DBColumnHelper.ID + " = " + id;
+
+        ResultSet result = _connection.executeQuery(query);
+        if(result.next()) {
+            return parsePart(result);
+        }
+
+        return null;
+    }
+
+    private PuzzlePart parsePart(ResultSet result) throws SQLException, IOException {
+        PuzzlePart part = new PuzzlePart(result.getInt(DBColumnHelper.ID),
+                result.getString(DBColumnHelper.PART_BARCODE),
+                result.getInt(DBColumnHelper.PART_ORDER));
+
+        InputStream imageStream = result.getBinaryStream(DBColumnHelper.PART_IMAGE_DATA);
+        ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+
+        //Read the BLOB from the result
+        int b;
+        while((b = imageStream.read()) != -1) {
+            byteArrayStream.write(b);
+        }
+
+        part.setImage(byteArrayStream.toByteArray());
+
+        return part;
     }
 }

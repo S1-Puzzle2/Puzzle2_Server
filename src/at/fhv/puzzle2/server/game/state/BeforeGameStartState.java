@@ -81,15 +81,38 @@ public class BeforeGameStartState extends PreGameRunningState {
                 e.printStackTrace();
             }
 
+        }else if(command instanceof GetPuzzlePartListCommand) {
+            PuzzlePartListCommand puzzlePartListCommand = new PuzzlePartListCommand(client.getClientID());
+            puzzlePartListCommand.setConnection(client.getConnection());
+
+            String puzzleName = ((GetPuzzlePartListCommand) command).getPuzzleName();
+            PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
+
+            try {
+                Puzzle puzzle = puzzleEntityManager.getPuzzleByName(puzzleName);
+
+                puzzlePartListCommand.setPuzzleName(puzzle.getName());
+
+                List<PuzzlePart> partList = puzzle.getPartsList();
+
+                List<PuzzlePartListCommand.DummyPuzzlePart> dummyParts = new LinkedList<>();
+                for(PuzzlePart part: partList) {
+                    dummyParts.add(puzzlePartListCommand.new DummyPuzzlePart(part.getID(), part.getBarcode()));
+                }
+                puzzlePartListCommand.setPartList(dummyParts);
+
+                SendQueue.getInstance().addCommandToSend(puzzlePartListCommand);
+            } catch (SQLException | IOException e) {
+                //TODO
+                e.printStackTrace();
+            }
         } else if(command instanceof SetPuzzleCommand) {
             PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
             try {
                 Puzzle puzzle = puzzleEntityManager.getPuzzleByName(((SetPuzzleCommand) command).getPuzzleName());
                 _game.setPuzzle(puzzle);
-            } catch (SQLException e) {
+            } catch (SQLException | IOException e) {
                 //TODO
-                e.printStackTrace();
-            } catch (IOException e) {
                 e.printStackTrace();
             }
 
@@ -109,7 +132,8 @@ public class BeforeGameStartState extends PreGameRunningState {
                 RegisterCommand.class, GetGameStateCommand.class, ReadyCommand.class,
                 GetPuzzlePartCommand.class, CreatePuzzleCommand.class,
                 CreatePuzzlePartCommand.class, ShowQRCommand.class,
-                SetPuzzleCommand.class, GetPuzzleListCommand.class
+                SetPuzzleCommand.class, GetPuzzleListCommand.class,
+                GetPuzzlePartListCommand.class
         );
     }
 

@@ -5,13 +5,18 @@ import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.*;
 import at.fhv.puzzle2.communication.application.command.commands.unity.ShowQRCommand;
 import at.fhv.puzzle2.server.SendQueue;
+import at.fhv.puzzle2.server.database.Database;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
+import at.fhv.puzzle2.server.entity.manager.PuzzleEntityManager;
 import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.Team;
 import at.fhv.puzzle2.server.users.client.*;
 import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 
+import javax.xml.crypto.Data;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,8 +37,6 @@ public abstract class PreGameRunningState extends GameState {
             if(_clientManager.areAllReady() && _game.getPuzzle() != null) {
                 return new GameRunningState(_game, _clientManager);
             }
-            //TODO this is a hack to test gamestart
-            //return new GameRunningState(_game, _clientManager);
         } else if(command instanceof RegisterCommand) {
             RegisterCommand registerCommand = (RegisterCommand) command;
 
@@ -99,18 +102,22 @@ public abstract class PreGameRunningState extends GameState {
 
             SendQueue.getInstance().addCommandToSend(gameStateCommand);
         } else if(command instanceof GetPuzzlePartCommand) {
-            if(_game.getPuzzle() == null) {
-                //TODO send error back
-                return null;
-            }
-
             PuzzlePartCommand puzzlePartCommand = new PuzzlePartCommand(command.getClientID());
             puzzlePartCommand.setConnection(command.getConnection());
 
-            PuzzlePart part = _game.getPuzzle().getPartByID(((GetPuzzlePartCommand) command).getPuzzlePartID());
+
+            PuzzlePart part = null;
+            if(_game.getPuzzle() != null) {
+                part = _game.getPuzzle().getPartByID(((GetPuzzlePartCommand) command).getPuzzlePartID());
+            }
+
             if(part == null) {
-                //TODO send error back
-                return null;
+                PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
+                try {
+                    part = puzzleEntityManager.getPuzzlePartByID(((GetPuzzlePartCommand) command).getPuzzlePartID());
+                } catch (IOException | SQLException e) {
+                    e.printStackTrace();
+                }
             }
 
             puzzlePartCommand.setImageID(part.getID());

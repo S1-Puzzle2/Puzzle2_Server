@@ -59,12 +59,17 @@ public class PuzzleEntityManager extends EntityManager {
     }
 
     public Puzzle getPuzzleByName(String puzzleName) throws SQLException, IOException {
-    PuzzleDbController puzzleDbController = _database.getPuzzleController();
-    PuzzlePartDbController puzzlePartDbController = _database.getPuzzlePartController();
+        PuzzleDbController puzzleDbController = _database.getPuzzleController();
+        PuzzlePartDbController puzzlePartDbController = _database.getPuzzlePartController();
 
-    Puzzle puzzle = puzzleDbController.getPuzzleByName(puzzleName);
-    puzzle.setPuzzlePartList(puzzlePartDbController.getPuzzlePartsByPuzzle(puzzle));
+        Puzzle puzzle = puzzleDbController.getPuzzleByName(puzzleName);
+        puzzle.setPuzzlePartList(puzzlePartDbController.getPuzzlePartsByPuzzle(puzzle));
 
-    return puzzle;
-}
+        return puzzle;
+    }
+
+    public PuzzlePart getPuzzlePartByID(Integer id) throws IOException, SQLException {
+        PuzzlePartDbController partDbController = _database.getPuzzlePartController();
+        return partDbController.getPuzzlePartByID(id);
+    }
 }

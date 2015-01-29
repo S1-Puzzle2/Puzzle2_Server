@@ -1,13 +1,17 @@
 package at.fhv.puzzle2.server;
 
 import at.fhv.puzzle2.communication.CommunicationManager;
+import at.fhv.puzzle2.communication.application.connection.encryption.AESEncryption;
+import at.fhv.puzzle2.communication.application.connection.encryption.Encryption;
 import at.fhv.puzzle2.communication.connection.protocoll.ethernet.tcp.TCPEndpoint;
 import at.fhv.puzzle2.logging.Exception.LogFormatterUnknownException;
 import at.fhv.puzzle2.logging.Logger;
 import at.fhv.puzzle2.server.database.Database;
 import at.fhv.puzzle2.server.logic.GameLoop;
 
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 
 public class Main {
@@ -22,7 +26,15 @@ public class Main {
             Initializer.initialize();
 
             Configuration configuration = Configuration.getInstance();
-            CommunicationManager cm = new CommunicationManager(configuration.getStringOrDefault("server.broadcast_message", "PUZZLE2"));
+
+            //Load the encryption
+            String password = configuration.getString("server.password");
+            Encryption encryption = null;
+            if(password != null) {
+                encryption = new AESEncryption(password);
+            }
+
+            CommunicationManager cm = new CommunicationManager(configuration.getStringOrDefault("server.broadcast_message", "PUZZLE2"), encryption);
             cm.addConnectionListener(new TCPEndpoint("127.0.0.1", 4711));
 
 
@@ -50,7 +62,7 @@ public class Main {
             Logger.getLogger().close();
         } catch (ConfigurationException e) {
             System.out.println("Configuration-Fehler: " + e.getMessage());
-        } catch (IOException | SQLException | LogFormatterUnknownException e) {
+        } catch (IOException | SQLException | LogFormatterUnknownException | NoSuchAlgorithmException | NoSuchPaddingException e) {
             e.printStackTrace();
         }
     }

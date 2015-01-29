@@ -16,7 +16,7 @@ public class ClientManager {
     private final Team _team1;
     private final Team _team2;
 
-    private Client _configurator;
+    private Client _configurator = null;
 
     public ClientManager() {
         //Load all team names from the configuration file
@@ -127,7 +127,7 @@ public class ClientManager {
     }
 
     public void clientDisconnected(CommandConnection connection) {
-        if(_configurator != null && _configurator.getConnection().equals(connection)) {
+        if(_configurator != null && Objects.equals(_configurator.getConnection(), connection)) {
             _configurator = null;
         } else {
             _team1.clientDisconnected(connection);

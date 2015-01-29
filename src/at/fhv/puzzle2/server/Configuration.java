@@ -14,7 +14,7 @@ public class Configuration {
     }
 
     public String getStringOrDefault(String key, String defaultValue) {
-        String value = _config.getString(key);
+        String value = getString(key);
         if(value == null) {
             return defaultValue;
         }
@@ -52,6 +52,14 @@ public class Configuration {
         } catch (IllegalStateException e) {
             throw new ConfigurationException("Die Konfigurationsdatei ist nicht korrekt formatiert");
         }
+    }
+
+    public String getString(String key) {
+        return _config.getString(key);
+    }
+
+    public boolean isKeyPresent(String key) {
+        return _config.getString(key) != null;
     }
 
     private static Configuration _instance = null;

@@ -4,9 +4,13 @@ import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.server.users.client.Client;
 
 public abstract class ClientState {
-    final Client _client;
+    protected Client _client;
 
     ClientState(Client client) {
+        _client = client;
+    }
+
+    public void setClient(Client client) {
         _client = client;
     }
 

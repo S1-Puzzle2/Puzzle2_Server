@@ -84,12 +84,15 @@ public abstract class Client {
             _stateStack.push(_currentState);
         }
 
+        state.setClient(this);
+
         _currentState = state;
         _currentState.enter();
     }
 
     public void copyStateStackTo(Client newClient) {
-        newClient._stateStack = _stateStack;
+        _stateStack.forEach(state -> state.setClient(newClient));
+        newClient._stateStack = this._stateStack;
     }
 
     public void swapToLastState() {

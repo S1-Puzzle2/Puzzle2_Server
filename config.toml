@@ -1,6 +1,7 @@
 [server]
 broadcast_message = "PUZZLE2"
 loop_time = 500 #Zeit eines Gameloops in Millisekunden
+#password = "12345678"
 
 [database]
 host = "localhost"
@@ -15,7 +16,7 @@ team_names = ["Ghetto Gangsters", "Epic Team", "DAUs", "Die Schürzenjäger"]
 #Logger wird noch nicht ausgelesen, kommt noch
 [logger]
 #Mögliche Loglevel sind: Error, Warning, Info, Debug, Trace
-logLevel = "Debug"
+logLevel = "Trace"
 formatter = "SimpleFormatter"
 
 [[logger.sink]]
