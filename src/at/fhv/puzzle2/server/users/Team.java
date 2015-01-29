@@ -177,18 +177,11 @@ public class Team {
         if(Objects.equals(_mobileClient.getConnection(), connection)) {
             _mobileClient.swapClientState(new NotConnectedClientState(_mobileClient), true);
             _mobileClient.setConnection(null);
-        } else {
-            _mobileClient.swapClientState(new ReadyClientState(_mobileClient), true);
         }
 
         if(Objects.equals(_unityClient.getConnection(), connection)) {
             _unityClient.swapClientState(new NotConnectedClientState(_unityClient), true);
             _unityClient.setConnection(null);
-        } else {
-            if(!(_unityClient.getCurrentState() instanceof NotReadyClientState ||
-                    _unityClient.getCurrentState() instanceof ReadyClientState)) {
-                _unityClient.swapClientState(new ReadyClientState(_unityClient), true);
-            }
         }
     }
 
