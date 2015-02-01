@@ -14,7 +14,6 @@ import at.fhv.puzzle2.server.users.Team;
 import at.fhv.puzzle2.server.users.client.*;
 import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -73,6 +72,8 @@ public abstract class PreGameRunningState extends GameState {
             registeredCommand.setConnection(newClient.getConnection());
             registeredCommand.setRegistered(registered);
 
+            SendQueue.getInstance().addCommandToSend(registeredCommand);
+
             if(newClient instanceof UnityClient && registered) {
                 ShowQRCommand qrCommand = new ShowQRCommand(newClient.getClientID());
 
@@ -84,8 +85,6 @@ public abstract class PreGameRunningState extends GameState {
 
                 SendQueue.getInstance().addCommandToSend(qrCommand);
             }
-
-            SendQueue.getInstance().addCommandToSend(registeredCommand);
         } else if(command instanceof GetGameStateCommand) {
             GameStateCommand gameStateCommand = new GameStateCommand(command.getClientID());
             gameStateCommand.setConnection(command.getConnection());

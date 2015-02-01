@@ -15,7 +15,9 @@ public class SendQueue {
     }
 
     public void tick(long timeElapsed) {
-        for(Iterator<QueuedCommand> iterator = _commandQueue.iterator(); iterator.hasNext(); ) {
+        Iterator<QueuedCommand> iterator = _commandQueue.iterator();
+
+        while(iterator.hasNext()) {
             QueuedCommand queuedCommand = iterator.next();
             queuedCommand.timeElapsed(timeElapsed);
 
@@ -28,8 +30,7 @@ public class SendQueue {
     }
 
     public void addCommandToSend(Command command, long delay) {
-        //Add the item at the front, so we keep the order of the commands to send
-        _commandQueue.add(0, new QueuedCommand(command, delay));
+        _commandQueue.add(new QueuedCommand(command, delay));
     }
 
     public void addCommandToSend(Command command) {
