@@ -1,7 +1,6 @@
 package at.fhv.puzzle2.server;
 
 import at.fhv.puzzle2.communication.application.command.Command;
-import at.fhv.puzzle2.communication.observable.CommandReceivedObservable;
 import at.fhv.puzzle2.communication.observer.MessageReceivedObserver;
 
 import java.util.Iterator;
@@ -12,8 +11,8 @@ public class ReceivedCommandQueue implements MessageReceivedObserver, Iterator<C
     private final BlockingQueue<Command> _commandQueue = new LinkedBlockingQueue<>();
 
     @Override
-    public void messageReceived(CommandReceivedObservable commandReceivedObservable) {
-        _commandQueue.addAll(commandReceivedObservable.getMessageList());
+    public void messageReceived(Command command) {
+        _commandQueue.add(command);
     }
 
     @Override
