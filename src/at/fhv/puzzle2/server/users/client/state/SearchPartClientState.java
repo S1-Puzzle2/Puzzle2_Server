@@ -9,6 +9,7 @@ import at.fhv.puzzle2.server.entity.PuzzlePart;
 import at.fhv.puzzle2.server.users.client.Client;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class SearchPartClientState extends ClientState {
     private PuzzlePart _puzzlePart;
@@ -22,9 +23,9 @@ public class SearchPartClientState extends ClientState {
     }
 
     @Override
-    public ClientState handleCommand(Command command) {
+    public Optional<ClientState> handleCommand(Command command) {
         if(!(command instanceof BarcodeScannedCommand)) {
-            return null;
+            return Optional.empty();
         }
 
         BarcodeScannedCommand barcodeScannedCommand = (BarcodeScannedCommand) command;
@@ -37,10 +38,10 @@ public class SearchPartClientState extends ClientState {
         SendQueue.getInstance().addCommandToSend(barCodeCorrectCommand);
 
         if(correctBarCode) {
-            return new AnswerQuestionState(_client, _puzzlePart);
+            return Optional.of(new AnswerQuestionState(_client, _puzzlePart));
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Override

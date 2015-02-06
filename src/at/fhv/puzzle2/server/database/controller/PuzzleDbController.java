@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class PuzzleDbController extends DbController {
     public PuzzleDbController(DatabaseConnection connection) {
@@ -31,15 +32,15 @@ public class PuzzleDbController extends DbController {
         return puzzleList;
     }
 
-    public Puzzle getPuzzleByName(String name) throws SQLException {
+    public Optional<Puzzle> getPuzzleByName(String name) throws SQLException {
         String query = "SELECT * FROM " + DbTableHelper.PUZZLE_TABLE + " WHERE " + DBColumnHelper.PUZZLE_NAME + " LIKE '" + name + "'";
 
         ResultSet resultSet = _connection.executeQuery(query);
         if(resultSet.next()) {
-            return new Puzzle(resultSet.getInt(DBColumnHelper.ID), resultSet.getString(DBColumnHelper.PUZZLE_NAME));
+            return Optional.of(new Puzzle(resultSet.getInt(DBColumnHelper.ID), resultSet.getString(DBColumnHelper.PUZZLE_NAME)));
         }
 
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -54,16 +55,16 @@ public class PuzzleDbController extends DbController {
         puzzle.setID(_connection.executeSingleUpdateOrInsert(query));
     }
 
-    public Puzzle getPuzzleByID(Integer id) throws SQLException {
+    public Optional<Puzzle> getPuzzleByID(Integer id) throws SQLException {
         String query = "SELECT * FROM " + DbTableHelper.PUZZLE_TABLE +
                 " WHERE " + DBColumnHelper.ID + " = " + id;
 
         ResultSet result = _connection.executeQuery(query);
 
         if(result.next()) {
-            return new Puzzle(result.getInt(DBColumnHelper.ID), result.getString(DBColumnHelper.PUZZLE_NAME));
+            return Optional.of(new Puzzle(result.getInt(DBColumnHelper.ID), result.getString(DBColumnHelper.PUZZLE_NAME)));
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 }

@@ -13,6 +13,7 @@ import at.fhv.puzzle2.server.users.Team;
 import at.fhv.puzzle2.server.users.client.Client;
 
 import java.util.List;
+import java.util.Optional;
 
 public class GameRunningState extends GameState {
 
@@ -21,7 +22,7 @@ public class GameRunningState extends GameState {
     }
 
     @Override
-    public GameState processCommand(Command command) {
+    public Optional<GameState> processCommand(Command command) {
         Client client = _clientManager.getClientByID(command.getClientID());
 
         if(command instanceof PuzzleFinishedCommand) {

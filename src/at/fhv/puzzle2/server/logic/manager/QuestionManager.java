@@ -6,10 +6,7 @@ import at.fhv.puzzle2.server.entity.Question;
 import at.fhv.puzzle2.server.entity.manager.QuestionEntityManager;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -24,7 +21,7 @@ public class QuestionManager implements Cloneable {
         _questionList = questionList;
     }
 
-    public Question getNextRandomQuestion() {
+    public Optional<Question> getNextRandomQuestion() {
         if(_questionList.size() == 0) {
             //Reload all questions, we dont have any left :O
             try {
@@ -32,7 +29,7 @@ public class QuestionManager implements Cloneable {
                 _questionList = new QuestionEntityManager(Database.getInstance()).loadQuestions();
             } catch (SQLException e) {
                 e.printStackTrace();
-                return null;
+                return Optional.empty();
             }
         }
 
@@ -44,7 +41,7 @@ public class QuestionManager implements Cloneable {
 
         tmpQuestion.shuffleAnswers();
 
-        return tmpQuestion;
+        return Optional.of(tmpQuestion);
     }
 
     @Override

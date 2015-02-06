@@ -9,6 +9,7 @@ import at.fhv.puzzle2.server.entity.PuzzlePart;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class PuzzleEntityManager extends EntityManager {
     public PuzzleEntityManager(Database database) {
@@ -28,19 +29,19 @@ public class PuzzleEntityManager extends EntityManager {
         return puzzleList;
     }
 
-    public Puzzle getPuzzleByID(Integer id) throws SQLException, IOException {
+    public Optional<Puzzle> getPuzzleByID(Integer id) throws SQLException, IOException {
         PuzzleDbController puzzleDbController = _database.getPuzzleController();
         PuzzlePartDbController puzzlePartDbController = _database.getPuzzlePartController();
 
-        Puzzle puzzle = puzzleDbController.getPuzzleByID(id);
+        Optional<Puzzle> puzzle = puzzleDbController.getPuzzleByID(id);
 
-        if(puzzle == null) {
-            return null;
+        if(!puzzle.isPresent()) {
+            return Optional.empty();
         }
 
-        puzzle.setPuzzlePartList(puzzlePartDbController.getPuzzlePartsByPuzzle(puzzle));
+        puzzle.get().setPuzzlePartList(puzzlePartDbController.getPuzzlePartsByPuzzle(puzzle.get()));
 
-        return puzzle;
+        return Optional.of(puzzle.get());
     }
 
     public void storePuzzle(Puzzle puzzle) throws SQLException {
@@ -54,21 +55,23 @@ public class PuzzleEntityManager extends EntityManager {
         PuzzleDbController puzzleDbController = Database.getInstance().getPuzzleController();
         PuzzlePartDbController puzzlePartDbController = Database.getInstance().getPuzzlePartController();
 
-        Puzzle puzzle = puzzleDbController.getPuzzleByName(puzzleName);
-        puzzlePartDbController.persistPuzzlePart(puzzlePart, puzzle);
+        Optional<Puzzle> puzzle = puzzleDbController.getPuzzleByName(puzzleName);
+        puzzlePartDbController.persistPuzzlePart(puzzlePart, puzzle.get());
     }
 
-    public Puzzle getPuzzleByName(String puzzleName) throws SQLException, IOException {
+    public Optional<Puzzle> getPuzzleByName(String puzzleName) throws SQLException, IOException {
         PuzzleDbController puzzleDbController = _database.getPuzzleController();
         PuzzlePartDbController puzzlePartDbController = _database.getPuzzlePartController();
 
-        Puzzle puzzle = puzzleDbController.getPuzzleByName(puzzleName);
-        puzzle.setPuzzlePartList(puzzlePartDbController.getPuzzlePartsByPuzzle(puzzle));
+        Optional<Puzzle> puzzle = puzzleDbController.getPuzzleByName(puzzleName);
+        if(puzzle.isPresent()) {
+            puzzle.get().setPuzzlePartList(puzzlePartDbController.getPuzzlePartsByPuzzle(puzzle.get()));
+        }
 
         return puzzle;
     }
 
-    public PuzzlePart getPuzzlePartByID(Integer id) throws IOException, SQLException {
+    public Optional<PuzzlePart> getPuzzlePartByID(Integer id) throws IOException, SQLException {
         PuzzlePartDbController partDbController = _database.getPuzzlePartController();
         return partDbController.getPuzzlePartByID(id);
     }

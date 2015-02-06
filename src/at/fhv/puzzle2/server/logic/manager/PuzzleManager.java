@@ -5,10 +5,8 @@ import at.fhv.puzzle2.server.entity.PuzzlePart;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
-
-import static java.util.stream.Collectors.toCollection;
 
 public class PuzzleManager {
     private final List<PuzzlePart> _availableParts;
@@ -24,9 +22,9 @@ public class PuzzleManager {
         _availableParts.addAll(puzzle.getPartsList());
     }
 
-    public PuzzlePart getNextRandomPuzzlePart() {
+    public Optional<PuzzlePart> getNextRandomPuzzlePart() {
         if(!partsAvailable()) {
-            return null;
+            return Optional.empty();
         }
 
         PuzzlePart nextPart = _availableParts.get(_random.nextInt(_availableParts.size()));
@@ -34,7 +32,7 @@ public class PuzzleManager {
         //Remove it from the list nw
         _availableParts.remove(nextPart);
 
-        return nextPart;
+        return Optional.of(nextPart);
     }
 
     public void partFinished(PuzzlePart part) {

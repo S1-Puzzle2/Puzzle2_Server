@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toCollection;
@@ -30,7 +31,7 @@ public class BeforeGameStartState extends PreGameRunningState {
     }
 
     @Override
-    public GameState processCommand(Command command) {
+    public Optional<GameState> processCommand(Command command) {
         Client client = _clientManager.getClientByID(command.getClientID());
 
         if(command instanceof ReadyCommand || command instanceof  RegisterCommand ||
@@ -89,7 +90,7 @@ public class BeforeGameStartState extends PreGameRunningState {
             PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
 
             try {
-                Puzzle puzzle = puzzleEntityManager.getPuzzleByName(puzzleName);
+                Puzzle puzzle = puzzleEntityManager.getPuzzleByName(puzzleName).get();
 
                 puzzlePartListCommand.setPuzzleName(puzzle.getName());
 
@@ -109,7 +110,7 @@ public class BeforeGameStartState extends PreGameRunningState {
         } else if(command instanceof SetPuzzleCommand) {
             PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
             try {
-                Puzzle puzzle = puzzleEntityManager.getPuzzleByName(((SetPuzzleCommand) command).getPuzzleName());
+                Puzzle puzzle = puzzleEntityManager.getPuzzleByName(((SetPuzzleCommand) command).getPuzzleName()).get();
                 _game.setPuzzle(puzzle);
             } catch (SQLException | IOException e) {
                 //TODO

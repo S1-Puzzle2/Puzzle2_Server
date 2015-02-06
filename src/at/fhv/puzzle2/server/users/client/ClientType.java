@@ -1,6 +1,7 @@
 package at.fhv.puzzle2.server.users.client;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public enum  ClientType {
     Mobile("Mobile"), Unity("Unity"), Configurator("Configurator");
@@ -14,17 +15,17 @@ public enum  ClientType {
         return Objects.equals(_clientType, type);
     }
 
-    public static ClientType getClientTypeByString(String type) {
+    public static Optional<ClientType> getClientTypeByString(String type) {
         if(Mobile.isClientType(type)) {
-            return Mobile;
+            return Optional.of(Mobile);
         }
 
         if(Unity.isClientType(type)) {
-            return Unity;
+            return Optional.of(Unity);
         }
 
         if(Configurator.isClientType(type)) {
-            return Configurator;
+            return Optional.of(Configurator);
         }
 
         return null;

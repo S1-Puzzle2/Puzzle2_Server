@@ -3,6 +3,8 @@ package at.fhv.puzzle2.server.users.client.state;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.server.users.client.Client;
 
+import java.util.Optional;
+
 public abstract class ClientState {
     protected Client _client;
 
@@ -14,7 +16,9 @@ public abstract class ClientState {
         _client = client;
     }
 
-    public abstract ClientState handleCommand(Command command);
+    public Optional<ClientState> handleCommand(Command command) {
+        return Optional.empty();
+    }
 
     public void enter() {
         //Doesnt have to be implemented by all states

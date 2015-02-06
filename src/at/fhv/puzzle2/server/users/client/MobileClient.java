@@ -10,6 +10,8 @@ import at.fhv.puzzle2.server.users.client.state.ClientState;
 import at.fhv.puzzle2.server.users.client.state.PuzzleFinishedClientState;
 import at.fhv.puzzle2.server.users.client.state.SearchPartClientState;
 
+import java.util.Optional;
+
 public class MobileClient extends Client {
     private MobileClient(CommandConnection connection, ClientID clientID) {
         super(connection, clientID);
@@ -22,14 +24,14 @@ public class MobileClient extends Client {
 
     @Override
     public void processCommand(Command command) {
-        ClientState state = _currentState.handleCommand(command);
-        if(state != null) {
-            if(_currentState instanceof AnswerQuestionState && state instanceof SearchPartClientState) {
+        Optional<ClientState> optionalState = _currentState.handleCommand(command);
+        if(optionalState.isPresent()) {
+            if(_currentState instanceof AnswerQuestionState && optionalState.get() instanceof SearchPartClientState) {
                 //Notify the unity client, that a part has been unlocked
                 _team.partUnlocked(((AnswerQuestionState) _currentState).getPuzzlePart());
             }
 
-            state = fillDataInState(state);
+            ClientState state = fillDataInState(optionalState.get());
 
             swapClientState(state);
         }
@@ -38,16 +40,16 @@ public class MobileClient extends Client {
     @Override
     public ClientState fillDataInState(ClientState state) {
         if(state instanceof AnswerQuestionState) {
-            Question question = _team.getQuestionManager().getNextRandomQuestion();
+            Optional<Question> question = _team.getQuestionManager().getNextRandomQuestion();
 
-            ((AnswerQuestionState) state).setQuestion(question);
+            ((AnswerQuestionState) state).setQuestion(question.get());
 
         } else if(state instanceof SearchPartClientState) {
             if(!_team.getPuzzleManager().partsAvailable()) {
                 return new PuzzleFinishedClientState(this);
             } else {
                 SearchPartClientState searchPartClientState = (SearchPartClientState) state;
-                searchPartClientState.setPuzzlePart(_team.getPuzzleManager().getNextRandomPuzzlePart());
+                searchPartClientState.setPuzzlePart(_team.getPuzzleManager().getNextRandomPuzzlePart().get());
             }
         }
 

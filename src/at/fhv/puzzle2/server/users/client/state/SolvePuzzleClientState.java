@@ -1,6 +1,5 @@
 package at.fhv.puzzle2.server.users.client.state;
 
-import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.unity.SolvePuzzleCommand;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
@@ -21,11 +20,6 @@ public class SolvePuzzleClientState extends ClientState {
 
     public void setPuzzleManager(PuzzleManager puzzleManager) {
         _puzzleManager = puzzleManager;
-    }
-
-    @Override
-    public ClientState handleCommand(Command command) {
-        return null;
     }
 
     public void enter() {

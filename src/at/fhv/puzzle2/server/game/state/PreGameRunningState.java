@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -27,21 +28,25 @@ public abstract class PreGameRunningState extends GameState {
     }
 
     @Override
-    public GameState processCommand(Command command) {
+    public Optional<GameState> processCommand(Command command) {
         Client client = _clientManager.getClientByID(command.getClientID());
 
         if(command instanceof ReadyCommand) {
             client.swapClientState(new ReadyClientState(client));
 
             if(_clientManager.areAllReady() && _game.getPuzzle() != null) {
-                return new GameRunningState(_game, _clientManager);
+                return Optional.of(new GameRunningState(_game, _clientManager));
             }
         } else if(command instanceof RegisterCommand) {
             RegisterCommand registerCommand = (RegisterCommand) command;
 
-            ClientType type = ClientType.getClientTypeByString(registerCommand.getClientType());
+            Optional<ClientType> type = ClientType.getClientTypeByString(registerCommand.getClientType());
             Client newClient = null;
-            switch (type) {
+            if(!type.isPresent()) {
+                return Optional.empty();
+            }
+
+            switch (type.get()) {
                 case Unity:
                     newClient = new UnityClient(registerCommand.getConnection());
                     break;
@@ -105,26 +110,29 @@ public abstract class PreGameRunningState extends GameState {
             puzzlePartCommand.setConnection(command.getConnection());
 
 
-            PuzzlePart part = null;
+            Optional<PuzzlePart> partOptional = Optional.empty();
             if(_game.getPuzzle() != null) {
-                part = _game.getPuzzle().getPartByID(((GetPuzzlePartCommand) command).getPuzzlePartID());
+                partOptional = _game.getPuzzle().getPartByID(((GetPuzzlePartCommand) command).getPuzzlePartID());
             }
 
-            if(part == null) {
+            if(!partOptional.isPresent()) {
                 PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
                 try {
-                    part = puzzleEntityManager.getPuzzlePartByID(((GetPuzzlePartCommand) command).getPuzzlePartID());
+                    partOptional = puzzleEntityManager.getPuzzlePartByID(((GetPuzzlePartCommand) command).getPuzzlePartID());
                 } catch (IOException | SQLException e) {
                     e.printStackTrace();
                 }
             }
 
-            puzzlePartCommand.setImageID(part.getID());
-            puzzlePartCommand.setOrder(part.getOrder());
-            puzzlePartCommand.setImage(part.getImage());
+            if(partOptional.isPresent()) {
+                PuzzlePart part = partOptional.get();
+                puzzlePartCommand.setImageID(part.getID());
+                puzzlePartCommand.setOrder(part.getOrder());
+                puzzlePartCommand.setImage(part.getImage());
 
-            SendQueue.getInstance().addCommandToSend(puzzlePartCommand);
+                SendQueue.getInstance().addCommandToSend(puzzlePartCommand);
+            }
         }
-        return null;
+        return Optional.empty();
     }
 }

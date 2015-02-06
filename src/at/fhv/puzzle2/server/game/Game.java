@@ -5,17 +5,14 @@ import at.fhv.puzzle2.communication.application.command.commands.error.NotAllowe
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.logging.Logger;
 import at.fhv.puzzle2.server.SendQueue;
-import at.fhv.puzzle2.server.database.Database;
 import at.fhv.puzzle2.server.entity.Puzzle;
-import at.fhv.puzzle2.server.entity.manager.PuzzleEntityManager;
 import at.fhv.puzzle2.server.game.state.BeforeGameStartState;
 import at.fhv.puzzle2.server.game.state.GamePausedState;
 import at.fhv.puzzle2.server.game.state.GameRunningState;
 import at.fhv.puzzle2.server.game.state.GameState;
 import at.fhv.puzzle2.server.users.ClientManager;
 
-import java.io.IOException;
-import java.sql.SQLException;
+import java.util.Optional;
 
 public class Game {
     private static final String TAG = "server.Game";
@@ -42,15 +39,15 @@ public class Game {
             return;
         }
 
-        GameState state =_currentState.processCommand(command);
-        if(state != null) {
-            if(state instanceof GameRunningState) {
+        Optional<GameState> stateOptional =_currentState.processCommand(command);
+        if(stateOptional.isPresent()) {
+            if(stateOptional.get() instanceof GameRunningState) {
                 Logger.getLogger().info(TAG, "Game started...");
             }
 
             GameState previousState = _currentState;
 
-            _currentState = state;
+            _currentState = stateOptional.get();
             _currentState.enter(previousState);
         }
     }

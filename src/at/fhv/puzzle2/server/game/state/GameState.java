@@ -1,10 +1,11 @@
 package at.fhv.puzzle2.server.game.state;
 
 import at.fhv.puzzle2.communication.application.command.Command;
-import at.fhv.puzzle2.communication.application.command.commands.configurator.GetPuzzleListCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
+
+import java.util.Optional;
 
 public abstract class GameState {
     final Game _game;
@@ -15,7 +16,7 @@ public abstract class GameState {
         _clientManager = clientManager;
     }
 
-    public abstract GameState processCommand(Command command);
+    public abstract Optional<GameState> processCommand(Command command);
 
     public GameState processDisconnectedClient(CommandConnection connection) {
         _clientManager.clientDisconnected(connection);

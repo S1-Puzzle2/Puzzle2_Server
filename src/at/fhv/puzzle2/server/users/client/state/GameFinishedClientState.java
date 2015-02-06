@@ -1,6 +1,5 @@
 package at.fhv.puzzle2.server.users.client.state;
 
-import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.GameFinishedCommand;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.users.client.Client;
@@ -14,11 +13,6 @@ public class GameFinishedClientState extends ClientState {
 
     public void setIsWinning(boolean isWinning) {
         _isWinning = isWinning;
-    }
-
-    @Override
-    public ClientState handleCommand(Command command) {
-        return null;
     }
 
     @Override

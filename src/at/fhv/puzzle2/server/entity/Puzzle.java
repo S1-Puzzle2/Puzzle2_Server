@@ -3,6 +3,7 @@ package at.fhv.puzzle2.server.entity;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Puzzle {
@@ -51,13 +52,13 @@ public class Puzzle {
         this._id = id;
     }
 
-    public PuzzlePart getPartByID(Integer partID) {
+    public Optional<PuzzlePart> getPartByID(Integer partID) {
         for(PuzzlePart part: _partsList) {
             if(Objects.equals(part.getID(), partID)) {
-                return part;
+                return Optional.of(part);
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 }

@@ -9,6 +9,7 @@ import at.fhv.puzzle2.server.users.client.Client;
 import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 
 import java.util.List;
+import java.util.Optional;
 
 public class GamePausedState extends PreGameRunningState {
     public GamePausedState(Game game, ClientManager clientManager) {
@@ -16,7 +17,7 @@ public class GamePausedState extends PreGameRunningState {
     }
 
     @Override
-    public GameState processCommand(Command command) {
+    public Optional<GameState> processCommand(Command command) {
         if(command instanceof ReadyCommand || command instanceof  RegisterCommand ||
                 command instanceof GetGameStateCommand || command instanceof GetPuzzlePartCommand) {
             return super.processCommand(command);

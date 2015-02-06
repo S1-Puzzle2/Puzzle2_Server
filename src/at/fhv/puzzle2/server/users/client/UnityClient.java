@@ -6,6 +6,8 @@ import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.users.client.state.ClientState;
 import at.fhv.puzzle2.server.users.client.state.SolvePuzzleClientState;
 
+import java.util.Optional;
+
 public class UnityClient extends Client {
     public UnityClient(CommandConnection connection, ClientID clientID) {
         super(connection, clientID);
@@ -17,10 +19,10 @@ public class UnityClient extends Client {
 
     @Override
     public void processCommand(Command command) {
-        ClientState state = _currentState.handleCommand(command);
+        Optional<ClientState> state = _currentState.handleCommand(command);
 
-        if(state != null) {
-            swapClientState(state);
+        if(state.isPresent()) {
+            swapClientState(state.get());
         }
     }
 

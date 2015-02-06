@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class PuzzlePartDbController extends DbController {
     public PuzzlePartDbController(DatabaseConnection connection) {
@@ -52,15 +53,15 @@ public class PuzzlePartDbController extends DbController {
         part.setID(statement.executeUpdate());
     }
 
-    public PuzzlePart getPuzzlePartByID(Integer id) throws SQLException, IOException {
+    public Optional<PuzzlePart> getPuzzlePartByID(Integer id) throws SQLException, IOException {
         String query = "SELECT * FROM  " + DbTableHelper.PUZZLE_PART_TABLE + " WHERE " + DBColumnHelper.ID + " = " + id;
 
         ResultSet result = _connection.executeQuery(query);
         if(result.next()) {
-            return parsePart(result);
+            return Optional.of(parsePart(result));
         }
 
-        return null;
+        return Optional.empty();
     }
 
     private PuzzlePart parsePart(ResultSet result) throws SQLException, IOException {
