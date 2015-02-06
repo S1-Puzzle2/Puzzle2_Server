@@ -32,7 +32,7 @@ public class Game {
         if(!_currentState.commandAllowedInGameState(command)) {
             NotAllowedCommand notAllowedCommand = new NotAllowedCommand(command.getClientID());
             notAllowedCommand.setConnection(command.getConnection());
-            //notAllowedCommand.setCommandType(command);
+            notAllowedCommand.setCommandType(command.getCommandType());
 
             SendQueue.getInstance().addCommandToSend(notAllowedCommand);
 
