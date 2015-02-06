@@ -9,6 +9,7 @@ import at.fhv.puzzle2.logging.sink.ConsoleSink;
 import at.fhv.puzzle2.server.database.Database;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class Initializer {
     public static void initialize() throws ConfigurationException, SQLException, LogFormatterUnknownException {
@@ -22,13 +23,13 @@ public class Initializer {
         LogFormatter formatter = LoggerFactory.createFormatter(loggerConfig.getStringOrDefault("formatter", "SimpleFormatter"));
 
         String logLevelString = loggerConfig.getStringOrDefault("logLevel", "Warning");
-        LogLevel logLevel = LogLevel.stringToLevel(logLevelString);
-        if(logLevel == null) {
+        Optional<LogLevel> logLevel = LogLevel.stringToLevel(logLevelString);
+        if(!logLevel.isPresent()) {
             throw new ConfigurationException("Loglevel '" + logLevelString + "' is unknown");
         }
 
 
-        Logger.createLogger(formatter, logLevel);
+        Logger.createLogger(formatter, logLevel.get());
 
         //TODO read log sinks
         Logger.appendLogSink(new ConsoleSink());
