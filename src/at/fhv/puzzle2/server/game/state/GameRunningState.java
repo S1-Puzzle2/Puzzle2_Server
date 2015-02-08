@@ -67,9 +67,9 @@ public class GameRunningState extends GameState {
             SendQueue.getInstance().addCommandToSend(gameStartCommand);
 
             if(lastState instanceof BeforeGameStartState) {
-                client.swapToDefaultState();
+                client.gameStarted();
             } else if(lastState instanceof GamePausedState) {
-                client.swapToLastState();
+                client.gameResume();
             }
         }
     }

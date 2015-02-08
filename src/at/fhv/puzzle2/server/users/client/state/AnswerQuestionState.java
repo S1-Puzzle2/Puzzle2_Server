@@ -22,10 +22,6 @@ public class AnswerQuestionState extends ClientState {
         _puzzlePart = puzzlePart;
     }
 
-    public void setQuestion(Question question) {
-        _question = question;
-    }
-
     public PuzzlePart getPuzzlePart() {
         return _puzzlePart;
     }
@@ -55,6 +51,8 @@ public class AnswerQuestionState extends ClientState {
 
     @Override
     public void enter() {
+        _question = _client.getTeam().getQuestionManager().getNextRandomQuestion().get();
+
         ShowQuestionCommand command = new ShowQuestionCommand(_client.getClientID());
         command.setConnection(_client.getConnection());
 

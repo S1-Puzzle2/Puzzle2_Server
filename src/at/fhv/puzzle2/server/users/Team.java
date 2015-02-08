@@ -14,10 +14,7 @@ import at.fhv.puzzle2.server.logic.manager.QuestionManager;
 import at.fhv.puzzle2.server.users.client.Client;
 import at.fhv.puzzle2.server.users.client.MobileClient;
 import at.fhv.puzzle2.server.users.client.UnityClient;
-import at.fhv.puzzle2.server.users.client.state.NotConnectedClientState;
-import at.fhv.puzzle2.server.users.client.state.NotReadyClientState;
 import at.fhv.puzzle2.server.users.client.state.PuzzleFinishedClientState;
-import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -43,7 +40,10 @@ public class Team {
         _teamName = name;
 
         _unityClient = new UnityClient(null);
+        _unityClient.setTeam(this);
+
         _mobileClient = new MobileClient(null);
+        _mobileClient.setTeam(this);
 
         try {
             _questionManager = new QuestionManager(new QuestionEntityManager(Database.getInstance()).loadQuestions());
@@ -55,8 +55,8 @@ public class Team {
     public void gameFinished(boolean isWinning) {
         _isWinning = isWinning;
 
-        _mobileClient.gameFinished(isWinning);
-        _unityClient.gameFinished(isWinning);
+        _mobileClient.gameFinished();
+        _unityClient.gameFinished();
     }
 
     public boolean isMobileFinished() {
@@ -114,10 +114,9 @@ public class Team {
      */
     public boolean registerNewClient(Client newClient) {
         if(newClient instanceof UnityClient  && !_unityClient.isConnected()) {
-            _unityClient.copyStateStackTo(newClient);
+            newClient.connected(_unityClient);
+
             _unityClient = (UnityClient) newClient;
-            _unityClient.setTeam(this);
-            _unityClient.swapClientState(new NotReadyClientState(_unityClient));
 
             return true;
         }
@@ -132,20 +131,19 @@ public class Team {
      * in use or it doesnt belong to this team
      */
     public boolean registerReconnectedClient(Client client) {
-        if(client instanceof UnityClient && !_unityClient.isConnected()) {
-            _unityClient.copyStateStackTo(client);
+        if(client instanceof UnityClient && !_unityClient.isConnected() &&
+                Objects.equals(_unityClient.getClientID(), client.getClientID())) {
+            client.connected(_unityClient);
+
             _unityClient = (UnityClient) client;
-            _unityClient.setTeam(this);
-            _unityClient.swapClientState(new NotReadyClientState(_unityClient));
 
             return true;
         } else if(client instanceof MobileClient && !_mobileClient.isConnected() &&
                     Objects.equals(_mobileClientID, client.getClientID())) {
 
-            _mobileClient.copyStateStackTo(client);
+            client.connected(_mobileClient);
+
             _mobileClient = (MobileClient) client;
-            _mobileClient.setTeam(this);
-            _mobileClient.swapClientState(new NotReadyClientState(_mobileClient));
 
             return true;
         }
@@ -175,13 +173,11 @@ public class Team {
 
     public void clientDisconnected(CommandConnection connection) {
         if(Objects.equals(_mobileClient.getConnection(), connection)) {
-            _mobileClient.swapClientState(new NotConnectedClientState(_mobileClient), true);
-            _mobileClient.setConnection(null);
+            _mobileClient.disconnected();
         }
 
         if(Objects.equals(_unityClient.getConnection(), connection)) {
-            _unityClient.swapClientState(new NotConnectedClientState(_unityClient), true);
-            _unityClient.setConnection(null);
+            _unityClient.disconnected();
         }
     }
 
@@ -204,5 +200,9 @@ public class Team {
         clientList.add(_mobileClient);
 
         return clientList;
+    }
+
+    public boolean isWinning() {
+        return _isWinning;
     }
 }

@@ -12,7 +12,6 @@ import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.Team;
 import at.fhv.puzzle2.server.users.client.*;
-import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -32,7 +31,7 @@ public abstract class PreGameRunningState extends GameState {
         Client client = _clientManager.getClientByID(command.getClientID());
 
         if(command instanceof ReadyCommand) {
-            client.swapClientState(new ReadyClientState(client));
+            client.processCommand(command);
 
             if(_clientManager.areAllReady() && _game.getPuzzle() != null) {
                 return Optional.of(new GameRunningState(_game, _clientManager));

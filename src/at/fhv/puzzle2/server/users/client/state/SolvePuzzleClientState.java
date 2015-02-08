@@ -16,10 +16,8 @@ public class SolvePuzzleClientState extends ClientState {
 
     public SolvePuzzleClientState(Client client) {
         super(client);
-    }
 
-    public void setPuzzleManager(PuzzleManager puzzleManager) {
-        _puzzleManager = puzzleManager;
+        _puzzleManager = _client.getTeam().getPuzzleManager();
     }
 
     public void enter() {

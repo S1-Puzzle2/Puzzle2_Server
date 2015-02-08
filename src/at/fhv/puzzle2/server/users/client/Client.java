@@ -5,11 +5,9 @@ import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.logging.Logger;
 import at.fhv.puzzle2.server.users.Team;
-import at.fhv.puzzle2.server.users.client.state.ClientState;
-import at.fhv.puzzle2.server.users.client.state.GameFinishedClientState;
-import at.fhv.puzzle2.server.users.client.state.NotConnectedClientState;
-import at.fhv.puzzle2.server.users.client.state.NotReadyClientState;
+import at.fhv.puzzle2.server.users.client.state.*;
 
+import java.util.Optional;
 import java.util.Stack;
 
 public abstract class Client {
@@ -42,6 +40,10 @@ public abstract class Client {
         _team = team;
     }
 
+    public Team getTeam() {
+        return _team;
+    }
+
     public void setID(ClientID id) {
         _clientID = id;
     }
@@ -62,52 +64,63 @@ public abstract class Client {
         return _clientID;
     }
 
-    public void gameFinished(boolean isWinning) {
+    public void gameFinished() {
         GameFinishedClientState gameFinishedClientState = new GameFinishedClientState(this);
-        gameFinishedClientState.setIsWinning(isWinning);
 
-        swapClientState(gameFinishedClientState);
+        enterClientState(gameFinishedClientState);
+    }
+
+    public void gameStarted() {
+
+        enterClientState(getStartingState());
+    }
+
+    public void gameResume() {
+        if(!_stateStack.empty()) {
+            enterClientState(_stateStack.pop());
+        } else {
+            Logger.getLogger().error(TAG, "There is no clientstate on the stack :O");
+        }
+    }
+
+    public void gamePaused() {
+        _stateStack.push(_currentState);
+
+        enterClientState(new ReadyClientState(this));
+    }
+
+    public void connected(Client oldClient) {
+        //Copy the state stack
+        oldClient._stateStack.forEach(_stateStack::add);
+
+        //Set the team
+        _team = oldClient.getTeam();
+
+        enterClientState(new NotReadyClientState(this));
+    }
+
+    public void disconnected() {
+        _connection = null;
+
+        _stateStack.push(_currentState);
+        enterClientState(new NotConnectedClientState(this));
     }
 
     public boolean isReady() {
         return !(_currentState instanceof NotConnectedClientState || _currentState instanceof NotReadyClientState);
     }
 
-    public abstract void processCommand(Command command);
-
-    public void swapClientState(ClientState state) {
-        swapClientState(state, false);
+    public void processCommand(Command command) {
+        Optional<ClientState> stateOptional = _currentState.handleCommand(command);
+        if(stateOptional.isPresent()) {
+            enterClientState(stateOptional.get());
+        }
     }
 
-    public void swapClientState(ClientState state, boolean storeLastState) {
-        if(storeLastState) {
-            _stateStack.push(_currentState);
-        }
-
-        state.setClient(this);
-
+    protected void enterClientState(ClientState state) {
         _currentState = state;
         _currentState.enter();
     }
-
-    public void copyStateStackTo(Client newClient) {
-        _stateStack.forEach(state -> state.setClient(newClient));
-        newClient._stateStack = this._stateStack;
-    }
-
-    public void swapToLastState() {
-        if(!_stateStack.empty()) {
-             swapClientState(_stateStack.pop());
-        } else {
-            Logger.getLogger().error(TAG, "No last state is available");
-        }
-    }
-
-    public void swapToDefaultState() {
-        swapClientState(getStartingState());
-    }
-
-    public abstract ClientState fillDataInState(ClientState state);
 
     /**
      * This is the default state, which the client gets in when the game starts

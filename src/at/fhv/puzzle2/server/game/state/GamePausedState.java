@@ -6,7 +6,6 @@ import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.client.Client;
-import at.fhv.puzzle2.server.users.client.state.ReadyClientState;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,18 +38,16 @@ public class GamePausedState extends PreGameRunningState {
         //has paused and set their status to Ready
 
         /* Only store the state of still connected clients, the disconnected client has already changed its state
-           team.clientDisconnected() */
+           in team.clientDisconnected() */
         List<Client> clientList = _clientManager.getConnectedClients();
 
         for(Client client: clientList) {
-            client.swapClientState(new ReadyClientState(client), true);
+            client.gamePaused();
 
-            if(client.isConnected()) {
-                PauseCommand pauseCommand = new PauseCommand(client.getClientID());
-                pauseCommand.setConnection(client.getConnection());
+            PauseCommand pauseCommand = new PauseCommand(client.getClientID());
+            pauseCommand.setConnection(client.getConnection());
 
-                SendQueue.getInstance().addCommandToSend(pauseCommand);
-            }
+            SendQueue.getInstance().addCommandToSend(pauseCommand);
         }
     }
 }

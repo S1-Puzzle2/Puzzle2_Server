@@ -18,10 +18,6 @@ public class SearchPartClientState extends ClientState {
         super(client);
     }
 
-    public void setPuzzlePart(PuzzlePart puzzlePart) {
-        _puzzlePart = puzzlePart;
-    }
-
     @Override
     public Optional<ClientState> handleCommand(Command command) {
         if(!(command instanceof BarcodeScannedCommand)) {
@@ -46,6 +42,8 @@ public class SearchPartClientState extends ClientState {
 
     @Override
     public void enter() {
+        _puzzlePart = _client.getTeam().getPuzzleManager().getNextRandomPuzzlePart().get();
+
         SearchPuzzlePartCommand command = new SearchPuzzlePartCommand(_client.getClientID());
         command.setConnection(_client.getConnection());
         command.setPartID(_puzzlePart.getID());

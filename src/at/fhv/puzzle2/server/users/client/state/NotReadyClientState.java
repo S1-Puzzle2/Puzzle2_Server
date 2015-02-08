@@ -13,11 +13,9 @@ public class NotReadyClientState extends ClientState {
 
     @Override
     public Optional<ClientState> handleCommand(Command command) {
-        if(!(command instanceof ReadyCommand)) {
-            return Optional.empty();
+        if(command instanceof ReadyCommand) {
+            return Optional.of(new ReadyClientState(_client));
         }
-
-        _client.swapClientState(new ReadyClientState(_client));
 
         return Optional.empty();
     }
