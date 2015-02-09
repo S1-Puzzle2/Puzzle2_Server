@@ -7,7 +7,6 @@ import at.fhv.puzzle2.logging.Logger;
 import at.fhv.puzzle2.server.users.Team;
 import at.fhv.puzzle2.server.users.client.state.*;
 
-import java.util.Optional;
 import java.util.Stack;
 
 public abstract class Client {
@@ -111,10 +110,8 @@ public abstract class Client {
     }
 
     public void processCommand(Command command) {
-        Optional<ClientState> stateOptional = _currentState.handleCommand(command);
-        if(stateOptional.isPresent()) {
-            enterClientState(stateOptional.get());
-        }
+        _currentState.handleCommand(command)
+                .ifPresent(this::enterClientState); //If we receive a new ClientState, then enter it
     }
 
     protected void enterClientState(ClientState state) {
