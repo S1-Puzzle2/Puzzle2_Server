@@ -38,6 +38,10 @@ public class Database {
 
     private static Database _instance;
     public static Database getInstance() {
+        if(_instance == null) {
+            throw new IllegalStateException("Connection to the database must be" +
+                    " initialized before retrieving an instance");
+        }
         return _instance;
     }
     

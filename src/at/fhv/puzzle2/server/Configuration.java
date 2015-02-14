@@ -64,6 +64,10 @@ public class Configuration {
 
     private static Configuration _instance = null;
     public static Configuration getInstance() {
+        if(_instance == null) {
+            throw new IllegalStateException("Configuration must be initialized before retrieving an instance");
+        }
+
         return _instance;
     }
 }
