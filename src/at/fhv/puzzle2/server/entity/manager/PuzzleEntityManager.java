@@ -6,8 +6,6 @@ import at.fhv.puzzle2.server.database.controller.PuzzlePartDbController;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +14,7 @@ public class PuzzleEntityManager extends EntityManager {
         super(database);
     }
 
-    public List<Puzzle> getPuzzleList() throws SQLException, IOException {
+    public List<Puzzle> getPuzzleList() {
         PuzzleDbController puzzleDbController = _database.getPuzzleController();
         PuzzlePartDbController puzzlePartDbController = _database.getPuzzlePartController();
 
@@ -29,7 +27,7 @@ public class PuzzleEntityManager extends EntityManager {
         return puzzleList;
     }
 
-    public Optional<Puzzle> getPuzzleByID(Integer id) throws SQLException, IOException {
+    public Optional<Puzzle> getPuzzleByID(Integer id) {
         PuzzleDbController puzzleDbController = _database.getPuzzleController();
         PuzzlePartDbController puzzlePartDbController = _database.getPuzzlePartController();
 
@@ -44,14 +42,14 @@ public class PuzzleEntityManager extends EntityManager {
         return Optional.of(puzzle.get());
     }
 
-    public void storePuzzle(Puzzle puzzle) throws SQLException {
+    public void storePuzzle(Puzzle puzzle) {
         PuzzleDbController puzzleDbController = _database.getPuzzleController();
         PuzzlePartDbController puzzlePartDbController = _database.getPuzzlePartController();
 
         puzzleDbController.persistPuzzle(puzzle);
     }
 
-    public void storePuzzlePart(PuzzlePart puzzlePart, String puzzleName) throws SQLException {
+    public void storePuzzlePart(PuzzlePart puzzlePart, String puzzleName) {
         PuzzleDbController puzzleDbController = Database.getInstance().getPuzzleController();
         PuzzlePartDbController puzzlePartDbController = Database.getInstance().getPuzzlePartController();
 
@@ -59,7 +57,7 @@ public class PuzzleEntityManager extends EntityManager {
         puzzlePartDbController.persistPuzzlePart(puzzlePart, puzzle.get());
     }
 
-    public Optional<Puzzle> getPuzzleByName(String puzzleName) throws SQLException, IOException {
+    public Optional<Puzzle> getPuzzleByName(String puzzleName) {
         PuzzleDbController puzzleDbController = _database.getPuzzleController();
         PuzzlePartDbController puzzlePartDbController = _database.getPuzzlePartController();
 
@@ -71,7 +69,7 @@ public class PuzzleEntityManager extends EntityManager {
         return puzzle;
     }
 
-    public Optional<PuzzlePart> getPuzzlePartByID(Integer id) throws IOException, SQLException {
+    public Optional<PuzzlePart> getPuzzlePartByID(Integer id) {
         PuzzlePartDbController partDbController = _database.getPuzzlePartController();
         return partDbController.getPuzzlePartByID(id);
     }

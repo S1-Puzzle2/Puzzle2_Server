@@ -13,8 +13,6 @@ import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.Team;
 import at.fhv.puzzle2.server.users.client.*;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -116,11 +114,7 @@ public abstract class PreGameRunningState extends GameState {
 
             if(!partOptional.isPresent()) {
                 PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
-                try {
-                    partOptional = puzzleEntityManager.getPuzzlePartByID(((GetPuzzlePartCommand) command).getPuzzlePartID());
-                } catch (IOException | SQLException e) {
-                    e.printStackTrace();
-                }
+                partOptional = puzzleEntityManager.getPuzzlePartByID(((GetPuzzlePartCommand) command).getPuzzlePartID());
             }
 
             if(partOptional.isPresent()) {

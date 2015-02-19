@@ -9,6 +9,7 @@ import at.fhv.puzzle2.communication.application.command.commands.configurator.*;
 import at.fhv.puzzle2.communication.application.command.commands.unity.ShowQRCommand;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.database.Database;
+import at.fhv.puzzle2.server.database.UncheckedSQLException;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
 import at.fhv.puzzle2.server.entity.manager.PuzzleEntityManager;
@@ -16,12 +17,11 @@ import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.client.Client;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -44,8 +44,8 @@ public class BeforeGameStartState extends PreGameRunningState {
             PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
             try {
                 puzzleEntityManager.storePuzzle(puzzle);
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch(UncheckedSQLException e) {
+
             }
         }else if(command instanceof CreatePuzzlePartCommand) {
             PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
@@ -58,7 +58,7 @@ public class BeforeGameStartState extends PreGameRunningState {
 
             try {
                 puzzleEntityManager.storePuzzlePart(part, puzzleName);
-            } catch (SQLException e) {
+            } catch (UncheckedSQLException e) {
                 e.printStackTrace();
             }
         }else if(command instanceof GetPuzzleListCommand) {
@@ -66,21 +66,17 @@ public class BeforeGameStartState extends PreGameRunningState {
             puzzleListCommand.setConnection(command.getConnection());
 
             PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
-            try {
-                List<Puzzle> puzzleList = puzzleEntityManager.getPuzzleList();
-                List<String> nameList = puzzleList.stream().map(new Function<Puzzle, String>() {
-                    @Override
-                    public String apply(Puzzle puzzle) {
-                        return puzzle.getName();
-                    }
-                }).collect(toCollection(LinkedList::new));
+            List<Puzzle> puzzleList = puzzleEntityManager.getPuzzleList();
+            List<String> nameList = puzzleList.stream().map(new Function<Puzzle, String>() {
+                @Override
+                public String apply(Puzzle puzzle) {
+                                                 return puzzle.getName();
+                                                                                                  }
+            }).collect(toCollection(LinkedList::new));
 
-                puzzleListCommand.setPuzzleList(nameList);
+            puzzleListCommand.setPuzzleList(nameList);
 
-                SendQueue.getInstance().addCommandToSend(puzzleListCommand);
-            } catch (SQLException | IOException e) {
-                e.printStackTrace();
-            }
+            SendQueue.getInstance().addCommandToSend(puzzleListCommand);
 
         }else if(command instanceof GetPuzzlePartListCommand) {
             PuzzlePartListCommand puzzlePartListCommand = new PuzzlePartListCommand(client.getClientID());
@@ -89,35 +85,25 @@ public class BeforeGameStartState extends PreGameRunningState {
             String puzzleName = ((GetPuzzlePartListCommand) command).getPuzzleName();
             PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
 
-            try {
-                Puzzle puzzle = puzzleEntityManager.getPuzzleByName(puzzleName).get();
+            Puzzle puzzle = puzzleEntityManager.getPuzzleByName(puzzleName).get();
 
-                puzzlePartListCommand.setPuzzleName(puzzle.getName());
+            puzzlePartListCommand.setPuzzleName(puzzle.getName());
 
-                List<PuzzlePart> partList = puzzle.getPartsList();
+            List<PuzzlePart> partList = puzzle.getPartsList();
 
-                List<PuzzlePartListCommand.DummyPuzzlePart> dummyParts = new LinkedList<>();
-                for(PuzzlePart part: partList) {
-                    dummyParts.add(puzzlePartListCommand.new DummyPuzzlePart(part.getID(), part.getBarcode()));
-                }
-                puzzlePartListCommand.setPartList(dummyParts);
+            List<PuzzlePartListCommand.DummyPuzzlePart> dummyParts = partList.stream()
+                    .map(part -> puzzlePartListCommand.new DummyPuzzlePart(part.getID(), part.getBarcode()))
+                    .collect(Collectors.toCollection(LinkedList::new));
 
-                SendQueue.getInstance().addCommandToSend(puzzlePartListCommand);
-            } catch (SQLException | IOException e) {
-                //TODO
-                e.printStackTrace();
-            }
+            puzzlePartListCommand.setPartList(dummyParts);
+
+            SendQueue.getInstance().addCommandToSend(puzzlePartListCommand);
         } else if(command instanceof SetPuzzleCommand) {
             PuzzleEntityManager puzzleEntityManager = new PuzzleEntityManager(Database.getInstance());
-            try {
-                Puzzle puzzle = puzzleEntityManager.getPuzzleByName(((SetPuzzleCommand) command).getPuzzleName()).get();
-                _game.setPuzzle(puzzle);
-            } catch (SQLException | IOException e) {
-                //TODO
-                e.printStackTrace();
-            }
+            Puzzle puzzle = puzzleEntityManager.getPuzzleByName(((SetPuzzleCommand) command).getPuzzleName()).get();
+            _game.setPuzzle(puzzle);
 
-            return null;
+            return Optional.empty();
 
             //} else if(command instanceof SetP)
         } else {
