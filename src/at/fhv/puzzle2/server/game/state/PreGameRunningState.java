@@ -61,22 +61,25 @@ public abstract class PreGameRunningState extends GameState {
                 newClient.setID(ClientID.createRandomClientID());
             }
 
-            boolean registered;
+            boolean isRegistered;
 
             if(registerCommand.getClientID() != null) {
                 //So he tries to connect with a clientID, lets reassign the connection
-                registered = _clientManager.registerReconnectedClient(newClient);
+                isRegistered = _clientManager.registerReconnectedClient(newClient);
             } else {
-                registered = _clientManager.registerNewClient(newClient);
+                isRegistered = _clientManager.registerNewClient(newClient);
             }
 
             RegisteredCommand registeredCommand = new RegisteredCommand(newClient.getClientID());
             registeredCommand.setConnection(newClient.getConnection());
-            registeredCommand.setRegistered(registered);
+            registeredCommand.setRegistered(isRegistered);
+            if(isRegistered) {
+                registeredCommand.setTeamName(newClient.getTeam().getTeamName());
+            }
 
             SendQueue.getInstance().addCommandToSend(registeredCommand);
 
-            if(newClient instanceof UnityClient && registered) {
+            if(newClient instanceof UnityClient && isRegistered) {
                 ShowQRCommand qrCommand = new ShowQRCommand(newClient.getClientID());
 
                 Team team = _clientManager.getTeamOfClient(newClient);
