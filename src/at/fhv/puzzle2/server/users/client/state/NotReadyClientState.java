@@ -19,4 +19,9 @@ public class NotReadyClientState extends ClientState {
 
         return Optional.empty();
     }
+
+    @Override
+    public String toString() {
+        return "NotReady";
+    }
 }

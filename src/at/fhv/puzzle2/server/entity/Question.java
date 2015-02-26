@@ -1,6 +1,9 @@
 package at.fhv.puzzle2.server.entity;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
 public class Question implements Cloneable {
     private Integer _id;
@@ -32,8 +35,8 @@ public class Question implements Cloneable {
         return _answerList;
     }
 
-    public Answer getAnswerByIndex(int index) {
-        return _answerList.get(index);
+    public Answer getAnswerById(int id) {
+        return _answerList.stream().filter(answer -> answer.getID() == id).findFirst().get();
     }
 
     public void shuffleAnswers() {
@@ -43,23 +46,14 @@ public class Question implements Cloneable {
         Collections.shuffle(_answerList, new Random(seed));
     }
 
-    public int getCorrectAnswerIndex() {
-        for(int i = 0; i < _answerList.size(); i++) {
-            if(_answerList.get(i).isCorrect()) {
-                return i;
+    public int getCorrectAnswerID() {
+        for (Answer a_answerList : _answerList) {
+            if (a_answerList.isCorrect()) {
+                return a_answerList.getID();
             }
         }
 
         return -1;
-    }
-
-    public HashMap<Integer, String> getAnswerMap() {
-        HashMap<Integer, String> answerMap = new LinkedHashMap<>();
-        for(int i = 0; i < _answerList.size(); i++) {
-            answerMap.put(i, _answerList.get(i).getText());
-        }
-
-        return answerMap;
     }
 
     void addAnswer(Answer answer) {

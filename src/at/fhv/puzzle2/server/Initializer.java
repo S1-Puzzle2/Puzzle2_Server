@@ -1,11 +1,13 @@
 package at.fhv.puzzle2.server;
 
+import at.fhv.puzzle2.logging.Exception.LogFileNotWritableException;
 import at.fhv.puzzle2.logging.Exception.LogFormatterUnknownException;
 import at.fhv.puzzle2.logging.LogLevel;
 import at.fhv.puzzle2.logging.Logger;
 import at.fhv.puzzle2.logging.LoggerFactory;
 import at.fhv.puzzle2.logging.formatter.LogFormatter;
 import at.fhv.puzzle2.logging.sink.ConsoleSink;
+import at.fhv.puzzle2.logging.sink.SimpleFileSink;
 import at.fhv.puzzle2.server.database.Database;
 
 import java.sql.SQLException;
@@ -33,5 +35,10 @@ public class Initializer {
 
         //TODO read log sinks
         Logger.appendLogSink(new ConsoleSink());
+        try {
+            Logger.appendLogSink(new SimpleFileSink("trace.log"));
+        } catch (LogFileNotWritableException e) {
+            e.printStackTrace();
+        }
     }
 }

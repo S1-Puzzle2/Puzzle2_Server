@@ -23,7 +23,7 @@ public class PuzzleManager {
     }
 
     public Optional<PuzzlePart> getNextRandomPuzzlePart() {
-        if(!partsAvailable()) {
+        if(!partsRemaining()) {
             return Optional.empty();
         }
 
@@ -43,7 +43,11 @@ public class PuzzleManager {
         return _finishedParts;
     }
 
-    public boolean partsAvailable() {
+    public boolean partsRemaining() {
         return _availableParts.size() > 0;
+    }
+
+    public int getCountRemainingParts() {
+        return _availableParts.size();
     }
 }

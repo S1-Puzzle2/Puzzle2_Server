@@ -63,4 +63,12 @@ public class QuestionManager implements Cloneable {
 
         return null;
     }
+
+    public boolean questionsRemaining() {
+        return getCountRemainingQuestions() > 0;
+    }
+
+    public int getCountRemainingQuestions() {
+        return _questionList.size();
+    }
 }

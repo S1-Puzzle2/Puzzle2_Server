@@ -1,10 +1,11 @@
 package at.fhv.puzzle2.server.users;
 
 import at.fhv.puzzle2.communication.ClientID;
-import at.fhv.puzzle2.communication.application.command.commands.GameStateCommand;
 import at.fhv.puzzle2.communication.application.command.commands.unity.UnlockedPartCommand;
+import at.fhv.puzzle2.communication.application.command.dto.TeamStatusDTO;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.SendQueue;
+import at.fhv.puzzle2.server.StatusChangedListener;
 import at.fhv.puzzle2.server.database.Database;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
@@ -14,14 +15,12 @@ import at.fhv.puzzle2.server.logic.manager.QuestionManager;
 import at.fhv.puzzle2.server.users.client.Client;
 import at.fhv.puzzle2.server.users.client.MobileClient;
 import at.fhv.puzzle2.server.users.client.UnityClient;
-import at.fhv.puzzle2.server.users.client.state.PuzzleFinishedClientState;
+import at.fhv.puzzle2.server.users.client.state.AllPartsUnlockedClientState;
 
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-
-import static java.util.stream.Collectors.toCollection;
 
 public class Team {
     private final String _teamName;
@@ -29,6 +28,8 @@ public class Team {
     private MobileClient _mobileClient;
 
     private boolean _isWinning = false;
+
+    private List<StatusChangedListener> _statusChangedListenerList = new LinkedList<>();
 
     //We create a ID for the mobile client in advance
     private final ClientID _mobileClientID = ClientID.createRandomClientID();
@@ -59,8 +60,18 @@ public class Team {
         _unityClient.gameFinished();
     }
 
+    public void addStatusChangedListener(StatusChangedListener listener) {
+        _statusChangedListenerList.add(listener);
+    }
+
+    public void statusChanged() {
+        for(StatusChangedListener listener : _statusChangedListenerList) {
+            listener.statusChanged();
+        }
+    }
+
     public boolean isMobileFinished() {
-        return _mobileClient.getCurrentState() instanceof PuzzleFinishedClientState;
+        return _mobileClient.getCurrentState() instanceof AllPartsUnlockedClientState;
     }
 
     public ClientID getMobileClientID() {
@@ -72,27 +83,26 @@ public class Team {
 
         UnlockedPartCommand unlockedPartCommand = new UnlockedPartCommand(_unityClient.getClientID());
         unlockedPartCommand.setConnection(_unityClient.getConnection());
-        unlockedPartCommand.setUnlockedPartsList(puzzlePart.getID());
+        unlockedPartCommand.setUnlockedPartID(puzzlePart.getID());
 
         SendQueue.getInstance().addCommandToSend(unlockedPartCommand);
     }
 
     public void setPuzzle(Puzzle puzzle) {
         _puzzleManager = new PuzzleManager(puzzle);
+    }
 
-        List<Integer> idList = puzzle.getPartsList().stream().mapToInt(PuzzlePart::getID).boxed().collect(toCollection(LinkedList::new));
-
-        for(Client client: this.getConnectedClients()) {
-            GameStateCommand gameStateCommand = new GameStateCommand(client.getClientID());
-            gameStateCommand.setConnection(client.getConnection());
-            gameStateCommand.setPuzzleName(puzzle.getName());
-            gameStateCommand.setTeamName(this.getTeamName());
-
-
-            gameStateCommand.setPartsList(idList);
-
-            SendQueue.getInstance().addCommandToSend(gameStateCommand);
+    public TeamStatusDTO getStatus() {
+        TeamStatusDTO dto = new TeamStatusDTO();
+        if(_puzzleManager != null) {
+            dto.setCountRemainingParts(_puzzleManager.getCountRemainingParts());
         }
+
+        dto.setCountRemainingQuestions(_questionManager.getCountRemainingQuestions());
+        dto.setMobileState(_mobileClient.getCurrentState().toString());
+        dto.setUnityState(_unityClient.getCurrentState().toString());
+
+        return dto;
     }
 
     public PuzzleManager getPuzzleManager() {

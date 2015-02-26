@@ -4,8 +4,6 @@ import at.fhv.puzzle2.server.Configuration;
 import at.fhv.puzzle2.server.DisconnectedConnectionsQueue;
 import at.fhv.puzzle2.server.ReceivedCommandQueue;
 import at.fhv.puzzle2.server.SendQueue;
-import at.fhv.puzzle2.server.entity.Puzzle;
-import at.fhv.puzzle2.server.entity.PuzzlePart;
 import at.fhv.puzzle2.server.game.Game;
 
 import java.sql.SQLException;
@@ -71,6 +69,12 @@ public class GameLoop implements Runnable {
 
                 _sendQueue.tick(timeElapsed);
                 _game.timeElapsed(timeElapsed);
+
+                if(_game.hasStatusChanged()) {
+                    _game.notifyStatusChangedListeners();
+
+                    _game.unsetStatusChanged();
+                }
 
             } catch (InterruptedException e) {
                 //do nothing here

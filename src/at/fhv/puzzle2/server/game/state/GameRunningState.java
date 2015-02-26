@@ -2,8 +2,9 @@ package at.fhv.puzzle2.server.game.state;
 
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.GameStartCommand;
-import at.fhv.puzzle2.communication.application.command.commands.mobile.BarcodeScannedCommand;
-import at.fhv.puzzle2.communication.application.command.commands.mobile.PuzzleFinishedCommand;
+import at.fhv.puzzle2.communication.application.command.commands.RegisterGameStatusListenerCommand;
+import at.fhv.puzzle2.communication.application.command.commands.mobile.AllPartsUnlockedCommand;
+import at.fhv.puzzle2.communication.application.command.commands.mobile.PartScannedCommand;
 import at.fhv.puzzle2.communication.application.command.commands.mobile.QuestionAnsweredCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.SendQueue;
@@ -25,16 +26,20 @@ public class GameRunningState extends GameState {
     public Optional<GameState> processCommand(Command command) {
         Client client = _clientManager.getClientByID(command.getClientID());
 
-        if(command instanceof PuzzleFinishedCommand) {
+        if(command instanceof AllPartsUnlockedCommand) {
             Team team = _clientManager.getTeamOfClient(client);
-            if(team.isMobileFinished()) {
+            if (team.isMobileFinished()) {
                 _clientManager.gameFinished(team);
+            }
+        }else if(command instanceof RegisterGameStatusListenerCommand) {
+            if(client != null) {
+                _game.addStatusChangedListener(client);
             }
         } else {
             client.processCommand(command);
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -51,8 +56,9 @@ public class GameRunningState extends GameState {
     @Override
     public boolean commandAllowedInGameState(Command command) {
         return isClassOf(command,
-                BarcodeScannedCommand.class, QuestionAnsweredCommand.class,
-                PuzzleFinishedCommand.class);
+                PartScannedCommand.class, QuestionAnsweredCommand.class,
+                RegisterGameStatusListenerCommand.class,
+                AllPartsUnlockedCommand.class);
     }
 
     @Override

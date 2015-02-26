@@ -6,4 +6,9 @@ public class ReadyClientState extends ClientState {
     public ReadyClientState(Client client) {
         super(client);
     }
+
+    @Override
+    public String toString() {
+        return "Ready";
+    }
 }

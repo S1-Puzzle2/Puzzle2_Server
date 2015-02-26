@@ -18,7 +18,7 @@ public class GameFinishedState extends GameState {
             //TODO return beforeGameState
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Override

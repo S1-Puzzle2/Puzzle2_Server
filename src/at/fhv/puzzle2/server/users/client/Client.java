@@ -116,7 +116,10 @@ public abstract class Client {
 
     protected void enterClientState(ClientState state) {
         _currentState = state;
+
         _currentState.enter();
+
+        _team.statusChanged();
     }
 
     /**

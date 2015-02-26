@@ -1,5 +1,7 @@
 package at.fhv.puzzle2.server.users.client.state;
 
+import at.fhv.puzzle2.communication.application.command.Command;
+import at.fhv.puzzle2.communication.application.command.commands.unity.CheckPuzzleFinishedCommand;
 import at.fhv.puzzle2.communication.application.command.commands.unity.SolvePuzzleCommand;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
@@ -8,6 +10,7 @@ import at.fhv.puzzle2.server.users.client.Client;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -18,6 +21,15 @@ public class SolvePuzzleClientState extends ClientState {
         super(client);
 
         _puzzleManager = _client.getTeam().getPuzzleManager();
+    }
+
+    @Override
+    public Optional<ClientState> handleCommand(Command command) {
+        if(command instanceof CheckPuzzleFinishedCommand) {
+            CheckPuzzleFinishedCommand checkPuzzleFinishedCommand = (CheckPuzzleFinishedCommand) command;
+        }
+
+        return Optional.empty();
     }
 
     public void enter() {
@@ -31,5 +43,10 @@ public class SolvePuzzleClientState extends ClientState {
         command.setUnlockedPartsList(unlockedIds);
 
         SendQueue.getInstance().addCommandToSend(command);
+    }
+
+    @Override
+    public String toString() {
+        return "SolvePuzzle";
     }
 }

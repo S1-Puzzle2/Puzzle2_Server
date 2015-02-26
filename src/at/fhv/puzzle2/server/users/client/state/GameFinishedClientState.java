@@ -17,4 +17,9 @@ public class GameFinishedClientState extends ClientState {
 
         SendQueue.getInstance().addCommandToSend(gameFinishedCommand);
     }
+
+    @Override
+    public String toString() {
+        return "GameFinished";
+    }
 }

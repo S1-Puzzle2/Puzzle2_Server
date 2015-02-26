@@ -49,11 +49,11 @@ public class PuzzleEntityManager extends EntityManager {
         puzzleDbController.persistPuzzle(puzzle);
     }
 
-    public void storePuzzlePart(PuzzlePart puzzlePart, String puzzleName) {
+    public void storePuzzlePart(PuzzlePart puzzlePart, int puzzleID) {
         PuzzleDbController puzzleDbController = Database.getInstance().getPuzzleController();
         PuzzlePartDbController puzzlePartDbController = Database.getInstance().getPuzzlePartController();
 
-        Optional<Puzzle> puzzle = puzzleDbController.getPuzzleByName(puzzleName);
+        Optional<Puzzle> puzzle = puzzleDbController.getPuzzleByID(puzzleID);
         puzzlePartDbController.persistPuzzlePart(puzzlePart, puzzle.get());
     }
 

@@ -6,6 +6,7 @@ import at.fhv.puzzle2.communication.application.command.commands.*;
 import at.fhv.puzzle2.communication.application.command.commands.unity.ShowQRCommand;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.database.Database;
+import at.fhv.puzzle2.server.dto_factory.PuzzleDTOFactory;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
 import at.fhv.puzzle2.server.entity.manager.PuzzleEntityManager;
 import at.fhv.puzzle2.server.game.Game;
@@ -13,11 +14,7 @@ import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.Team;
 import at.fhv.puzzle2.server.users.client.*;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
-
-import static java.util.stream.Collectors.toCollection;
 
 public abstract class PreGameRunningState extends GameState {
     PreGameRunningState(Game game, ClientManager clientManager) {
@@ -84,27 +81,23 @@ public abstract class PreGameRunningState extends GameState {
 
                 Team team = _clientManager.getTeamOfClient(newClient);
 
-
                 qrCommand.setQRCode(team.getMobileClientID().toString());
                 qrCommand.setConnection(newClient.getConnection());
 
                 SendQueue.getInstance().addCommandToSend(qrCommand);
             }
-        } else if(command instanceof GetGameStateCommand) {
-            GameStateCommand gameStateCommand = new GameStateCommand(command.getClientID());
-            gameStateCommand.setConnection(command.getConnection());
+        } else if(command instanceof GetGameInfoCommand) {
+            GameInfoCommand gameInfoCommand = new GameInfoCommand(command.getClientID());
+            gameInfoCommand.setConnection(command.getConnection());
 
             if(_game.getPuzzle() != null) {
-                gameStateCommand.setPuzzleName(_game.getPuzzle().getName());
-
-                List<Integer> idList = _game.getPuzzle().getPartsList().stream().mapToInt(PuzzlePart::getID).boxed().collect(toCollection(LinkedList::new));
-
-                gameStateCommand.setPartsList(idList);
+                gameInfoCommand.setPuzzle(PuzzleDTOFactory.createPuzzleDTO(_game.getPuzzle()));
             }
 
-            gameStateCommand.setTeamName(_clientManager.getTeamOfClient(client).getTeamName());
+            gameInfoCommand.setFirstTeamName(_clientManager.getFirstTeam().getTeamName());
+            gameInfoCommand.setSecondTeamName(_clientManager.getSecondTeam().getTeamName());
 
-            SendQueue.getInstance().addCommandToSend(gameStateCommand);
+            SendQueue.getInstance().addCommandToSend(gameInfoCommand);
         } else if(command instanceof GetPuzzlePartCommand) {
             PuzzlePartCommand puzzlePartCommand = new PuzzlePartCommand(command.getClientID());
             puzzlePartCommand.setConnection(command.getConnection());
@@ -123,11 +116,20 @@ public abstract class PreGameRunningState extends GameState {
             if(partOptional.isPresent()) {
                 PuzzlePart part = partOptional.get();
                 puzzlePartCommand.setImageID(part.getID());
-                puzzlePartCommand.setOrder(part.getOrder());
                 puzzlePartCommand.setImage(part.getImage());
 
                 SendQueue.getInstance().addCommandToSend(puzzlePartCommand);
             }
+        } else if(command instanceof RegisterGameStatusListenerCommand) {
+            if(client != null) {
+                _game.addStatusChangedListener(client);
+            }
+
+            GameStatusChangedCommand gameStatusChangedCommand = new GameStatusChangedCommand(client.getClientID());
+            gameStatusChangedCommand.setFirstTeamStatus(_clientManager.getFirstTeam().getStatus());
+            gameStatusChangedCommand.setSecondTeamStatus(_clientManager.getSecondTeam().getStatus());
+
+            SendQueue.getInstance().addCommandToSend(gameStatusChangedCommand);
         }
         return Optional.empty();
     }

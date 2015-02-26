@@ -2,13 +2,12 @@ package at.fhv.puzzle2.server.users.client.state;
 
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.mobile.BarCodeCorrectCommand;
-import at.fhv.puzzle2.communication.application.command.commands.mobile.BarcodeScannedCommand;
+import at.fhv.puzzle2.communication.application.command.commands.mobile.PartScannedCommand;
 import at.fhv.puzzle2.communication.application.command.commands.mobile.SearchPuzzlePartCommand;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
 import at.fhv.puzzle2.server.users.client.Client;
 
-import java.util.Objects;
 import java.util.Optional;
 
 public class SearchPartClientState extends ClientState {
@@ -20,20 +19,20 @@ public class SearchPartClientState extends ClientState {
 
     @Override
     public Optional<ClientState> handleCommand(Command command) {
-        if(!(command instanceof BarcodeScannedCommand)) {
+        if(!(command instanceof PartScannedCommand)) {
             return Optional.empty();
         }
 
-        BarcodeScannedCommand barcodeScannedCommand = (BarcodeScannedCommand) command;
-        boolean correctBarCode = Objects.equals(barcodeScannedCommand.getBarCode(), _puzzlePart.getBarcode());
+        PartScannedCommand partScannedCommand = (PartScannedCommand) command;
+        //boolean correctBarCode = Objects.equals(partScannedCommand.getBarCode(), _puzzlePart.getBarcode());
 
         BarCodeCorrectCommand barCodeCorrectCommand = new BarCodeCorrectCommand(_client.getClientID());
         barCodeCorrectCommand.setConnection(_client.getConnection());
-        barCodeCorrectCommand.setIsCorrect(correctBarCode);
+        barCodeCorrectCommand.setIsCorrect(true);
 
         SendQueue.getInstance().addCommandToSend(barCodeCorrectCommand);
 
-        if(correctBarCode) {
+        if(true) {
             return Optional.of(new AnswerQuestionState(_client, _puzzlePart));
         }
 
@@ -49,5 +48,10 @@ public class SearchPartClientState extends ClientState {
         command.setPartID(_puzzlePart.getID());
 
         SendQueue.getInstance().addCommandToSend(command, 3000);
+    }
+
+    @Override
+    public String toString() {
+        return "SearchPart";
     }
 }

@@ -3,6 +3,7 @@ package at.fhv.puzzle2.server.users;
 import at.fhv.puzzle2.communication.ClientID;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.Configuration;
+import at.fhv.puzzle2.server.StatusChangedListener;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.users.client.Client;
 import at.fhv.puzzle2.server.users.client.ConfiguratorClient;
@@ -159,5 +160,18 @@ public class ClientManager {
         clientsList.addAll(_team2.getConnectedClients());
 
         return clientsList;
+    }
+
+    public Team getFirstTeam() {
+        return _team1;
+    }
+
+    public Team getSecondTeam() {
+        return _team2;
+    }
+
+    public void registerStatusChangedListener(StatusChangedListener listener) {
+        _team1.addStatusChangedListener(listener);
+        _team2.addStatusChangedListener(listener);
     }
 }

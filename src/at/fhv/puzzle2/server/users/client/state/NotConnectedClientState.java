@@ -6,4 +6,9 @@ public class NotConnectedClientState extends ClientState {
     public NotConnectedClientState(Client client) {
         super(client);
     }
+
+    @Override
+    public String toString() {
+        return "Disconnected";
+    }
 }
