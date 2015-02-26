@@ -35,7 +35,7 @@ public class Main {
             }
 
             CommunicationManager cm = new CommunicationManager(configuration.getStringOrDefault("server.broadcast_message", "PUZZLE2"), encryption);
-            cm.addConnectionListener(new TCPEndpoint("127.0.0.1", 4711));
+            cm.addConnectionListener(new TCPEndpoint("0.0.0.0", 4711));
 
 
             ReceivedCommandQueue recvCommandQueue = new ReceivedCommandQueue();

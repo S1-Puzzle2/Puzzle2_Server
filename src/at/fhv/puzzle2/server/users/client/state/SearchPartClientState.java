@@ -8,6 +8,7 @@ import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
 import at.fhv.puzzle2.server.users.client.Client;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class SearchPartClientState extends ClientState {
@@ -24,15 +25,15 @@ public class SearchPartClientState extends ClientState {
         }
 
         PartScannedCommand partScannedCommand = (PartScannedCommand) command;
-        //boolean correctBarCode = Objects.equals(partScannedCommand.getBarCode(), _puzzlePart.getBarcode());
+        boolean correctBarCode = Objects.equals(partScannedCommand.getBarCode(), _puzzlePart.getBarcode());
 
         BarCodeCorrectCommand barCodeCorrectCommand = new BarCodeCorrectCommand(_client.getClientID());
         barCodeCorrectCommand.setConnection(_client.getConnection());
-        barCodeCorrectCommand.setIsCorrect(true);
+        barCodeCorrectCommand.setIsCorrect(correctBarCode);
 
         SendQueue.getInstance().addCommandToSend(barCodeCorrectCommand);
 
-        if(true) {
+        if(correctBarCode) {
             return Optional.of(new AnswerQuestionState(_client, _puzzlePart));
         }
 

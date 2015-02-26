@@ -4,12 +4,17 @@ import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.configurator.ResetGameCommand;
 import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
+import at.fhv.puzzle2.server.users.Team;
 
 import java.util.Optional;
 
 public class GameFinishedState extends GameState {
-    GameFinishedState(Game game, ClientManager clientManager) {
+    private final Team _winningTeam;
+
+    GameFinishedState(Game game, ClientManager clientManager, Team winningTeam) {
         super(game, clientManager);
+
+        _winningTeam = winningTeam;
     }
 
     @Override
@@ -28,6 +33,6 @@ public class GameFinishedState extends GameState {
 
     @Override
     public void enter(GameState lastState) {
-
+        _clientManager.gameFinished(_winningTeam);
     }
 }

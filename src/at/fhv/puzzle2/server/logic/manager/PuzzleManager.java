@@ -3,10 +3,7 @@ package at.fhv.puzzle2.server.logic.manager;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.entity.PuzzlePart;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class PuzzleManager {
     private final List<PuzzlePart> _availableParts;
@@ -49,5 +46,21 @@ public class PuzzleManager {
 
     public int getCountRemainingParts() {
         return _availableParts.size();
+    }
+
+    public boolean partsCorrectlyAligned(List<Integer> partIdList) {
+        if(Objects.equals(partIdList.size(), _finishedParts.size()))
+            return false;
+
+        for(int i = 0; i < _finishedParts.size(); i++)
+            for(PuzzlePart part: _finishedParts) {
+                if(Objects.equals(part.getID(), partIdList.get(i))) {
+                    if(Objects.equals(part.getOrder(),i + 1)) {
+                        return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

@@ -27,6 +27,9 @@ public class SolvePuzzleClientState extends ClientState {
     public Optional<ClientState> handleCommand(Command command) {
         if(command instanceof CheckPuzzleFinishedCommand) {
             CheckPuzzleFinishedCommand checkPuzzleFinishedCommand = (CheckPuzzleFinishedCommand) command;
+
+            if(_puzzleManager.partsCorrectlyAligned(checkPuzzleFinishedCommand.getPartList())) {
+            }
         }
 
         return Optional.empty();

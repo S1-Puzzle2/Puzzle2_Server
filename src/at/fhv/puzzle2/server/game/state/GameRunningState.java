@@ -6,6 +6,7 @@ import at.fhv.puzzle2.communication.application.command.commands.RegisterGameSta
 import at.fhv.puzzle2.communication.application.command.commands.mobile.AllPartsUnlockedCommand;
 import at.fhv.puzzle2.communication.application.command.commands.mobile.PartScannedCommand;
 import at.fhv.puzzle2.communication.application.command.commands.mobile.QuestionAnsweredCommand;
+import at.fhv.puzzle2.communication.application.command.commands.unity.CheckPuzzleFinishedCommand;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.game.Game;
@@ -26,11 +27,14 @@ public class GameRunningState extends GameState {
     public Optional<GameState> processCommand(Command command) {
         Client client = _clientManager.getClientByID(command.getClientID());
 
-        if(command instanceof AllPartsUnlockedCommand) {
+        if(command instanceof CheckPuzzleFinishedCommand) {
+            CheckPuzzleFinishedCommand checkPuzzleFinishedCommand = (CheckPuzzleFinishedCommand) command;
             Team team = _clientManager.getTeamOfClient(client);
-            if (team.isMobileFinished()) {
-                _clientManager.gameFinished(team);
+
+            if(team.isMobileFinished() && team.getPuzzleManager().partsCorrectlyAligned(checkPuzzleFinishedCommand.getPartList())) {
+                return Optional.of(new GameFinishedState(_game, _clientManager, team));
             }
+
         }else if(command instanceof RegisterGameStatusListenerCommand) {
             if(client != null) {
                 _game.addStatusChangedListener(client);
@@ -57,7 +61,7 @@ public class GameRunningState extends GameState {
     public boolean commandAllowedInGameState(Command command) {
         return isClassOf(command,
                 PartScannedCommand.class, QuestionAnsweredCommand.class,
-                RegisterGameStatusListenerCommand.class,
+                RegisterGameStatusListenerCommand.class, CheckPuzzleFinishedCommand.class,
                 AllPartsUnlockedCommand.class);
     }
 
