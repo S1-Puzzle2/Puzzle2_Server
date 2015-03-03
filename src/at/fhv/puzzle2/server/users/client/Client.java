@@ -92,6 +92,8 @@ public abstract class Client {
         //Copy the state stack
         oldClient._stateStack.forEach(_stateStack::add);
 
+        _stateStack.forEach(state -> state.setClient(this));
+
         //Set the team
         _team = oldClient.getTeam();
 

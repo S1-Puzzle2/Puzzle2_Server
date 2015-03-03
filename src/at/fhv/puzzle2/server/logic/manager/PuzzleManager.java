@@ -55,7 +55,7 @@ public class PuzzleManager {
         for(int i = 0; i < _finishedParts.size(); i++)
             for(PuzzlePart part: _finishedParts) {
                 if(Objects.equals(part.getID(), partIdList.get(i))) {
-                    if(Objects.equals(part.getOrder(),i + 1)) {
+                    if(!Objects.equals(part.getOrder(),i)) {
                         return false;
                 }
             }

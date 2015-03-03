@@ -5,6 +5,7 @@ import at.fhv.puzzle2.communication.application.command.commands.configurator.Re
 import at.fhv.puzzle2.server.game.Game;
 import at.fhv.puzzle2.server.users.ClientManager;
 import at.fhv.puzzle2.server.users.Team;
+import at.fhv.puzzle2.server.users.client.Client;
 
 import java.util.Optional;
 
@@ -33,6 +34,8 @@ public class GameFinishedState extends GameState {
 
     @Override
     public void enter(GameState lastState) {
-        _clientManager.gameFinished(_winningTeam);
+        for(Client client : _clientManager.getConnectedClients()) {
+            client.gameFinished();
+        }
     }
 }

@@ -28,8 +28,11 @@ public class SolvePuzzleClientState extends ClientState {
         if(command instanceof CheckPuzzleFinishedCommand) {
             CheckPuzzleFinishedCommand checkPuzzleFinishedCommand = (CheckPuzzleFinishedCommand) command;
 
-            if(_puzzleManager.partsCorrectlyAligned(checkPuzzleFinishedCommand.getPartList())) {
-            }
+            //if(_puzzleManager.partsCorrectlyAligned(checkPuzzleFinishedCommand.getPartList())) {
+                return Optional.of(new PuzzleFinishedState(_client));
+
+                //System.out.println("Game finished!!!!");
+            //}
         }
 
         return Optional.empty();

@@ -16,6 +16,7 @@ public class SearchPartClientState extends ClientState {
 
     public SearchPartClientState(Client client) {
         super(client);
+
     }
 
     @Override
@@ -34,7 +35,11 @@ public class SearchPartClientState extends ClientState {
         SendQueue.getInstance().addCommandToSend(barCodeCorrectCommand);
 
         if(correctBarCode) {
-            return Optional.of(new AnswerQuestionState(_client, _puzzlePart));
+            if(_client.getTeam().getQuestionManager().questionsRemaining()) {
+                return Optional.of(new AnswerQuestionState(_client, _puzzlePart));
+            } else {
+                return Optional.of(new NoQuestionsLeftState(_client));
+            }
         }
 
         return Optional.empty();
@@ -42,7 +47,9 @@ public class SearchPartClientState extends ClientState {
 
     @Override
     public void enter() {
-        _puzzlePart = _client.getTeam().getPuzzleManager().getNextRandomPuzzlePart().get();
+        if(_puzzlePart == null) {
+            _puzzlePart = _client.getTeam().getPuzzleManager().getNextRandomPuzzlePart().get();
+        }
 
         SearchPuzzlePartCommand command = new SearchPuzzlePartCommand(_client.getClientID());
         command.setConnection(_client.getConnection());

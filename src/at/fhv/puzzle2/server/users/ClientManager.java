@@ -7,6 +7,8 @@ import at.fhv.puzzle2.server.StatusChangedListener;
 import at.fhv.puzzle2.server.entity.Puzzle;
 import at.fhv.puzzle2.server.users.client.Client;
 import at.fhv.puzzle2.server.users.client.ConfiguratorClient;
+import at.fhv.puzzle2.server.users.client.MobileClient;
+import at.fhv.puzzle2.server.users.client.UnityClient;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -63,6 +65,26 @@ public class ClientManager {
         if(_configurator != null) {
             _configurator.gameFinished();
         }
+    }
+
+    public Team getWinningTeam() {
+        for(Client client : _team1.getAllClients()) {
+            if(client instanceof MobileClient && client.getCurrentState().toString().equals("NoQuestionsLeft")) {
+                return _team2;
+            } else if(client instanceof UnityClient && client.getCurrentState().toString().equals("PuzzleFinished")) {
+                return _team1;
+            }
+        }
+
+        for(Client client : _team2.getAllClients()) {
+            if(client instanceof MobileClient && client.getCurrentState().toString().equals("NoQuestionsLeft")) {
+                return _team1;
+            } else if(client instanceof UnityClient && client.getCurrentState().toString().equals("PuzzleFinished")) {
+                return _team2;
+            }
+        }
+
+        return null;
     }
 
     public void setPuzzle(Puzzle puzzle) {

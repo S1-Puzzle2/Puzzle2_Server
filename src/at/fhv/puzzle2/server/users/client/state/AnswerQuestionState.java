@@ -22,6 +22,7 @@ public class AnswerQuestionState extends ClientState {
     public AnswerQuestionState(Client client, PuzzlePart puzzlePart) {
         super(client);
 
+        _question = _client.getTeam().getQuestionManager().getNextRandomQuestion().get();
         _puzzlePart = puzzlePart;
     }
 
@@ -46,7 +47,11 @@ public class AnswerQuestionState extends ClientState {
         SendQueue.getInstance().addCommandToSend(response);
 
         if(answer.isCorrect()) {
-            return Optional.of(new SearchPartClientState(_client));
+            if(_client.getTeam().getPuzzleManager().partsRemaining()) {
+                return Optional.of(new SearchPartClientState(_client));
+            } else {
+                return Optional.of(new AllPartsUnlockedClientState(_client));
+            }
         }
 
         return Optional.of(new AnswerQuestionState(_client, this._puzzlePart));
@@ -54,7 +59,6 @@ public class AnswerQuestionState extends ClientState {
 
     @Override
     public void enter() {
-        _question = _client.getTeam().getQuestionManager().getNextRandomQuestion().get();
 
         AnswerQuestionCommand command = new AnswerQuestionCommand(_client.getClientID());
         command.setConnection(_client.getConnection());

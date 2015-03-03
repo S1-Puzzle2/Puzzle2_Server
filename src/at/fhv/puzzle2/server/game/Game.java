@@ -3,6 +3,7 @@ package at.fhv.puzzle2.server.game;
 import at.fhv.puzzle2.communication.application.command.Command;
 import at.fhv.puzzle2.communication.application.command.commands.GameInfoCommand;
 import at.fhv.puzzle2.communication.application.command.commands.GameStatusChangedCommand;
+import at.fhv.puzzle2.communication.application.command.dto.TeamStatusDTO;
 import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.logging.Logger;
 import at.fhv.puzzle2.server.SendQueue;
@@ -45,7 +46,6 @@ public class Game implements StatusChangedListener {
         //TODO just for testing
         PuzzleEntityManager pem = new PuzzleEntityManager(Database.getInstance());
         setPuzzle(pem.getPuzzleByID(2).get());
-        setPuzzle(new Puzzle(2, "hammergood puzzle"));
     }
 
     public void addStatusChangedListener(Client client) {
@@ -131,6 +131,27 @@ public class Game implements StatusChangedListener {
 
             SendQueue.getInstance().addCommandToSend(gameInfoCommand);
         }
+    }
+
+    public boolean clientHasFinished() {
+        TeamStatusDTO firstTeamStatus = _clientManager.getFirstTeam().getStatus();
+
+        if(firstTeamStatus.getMobileState().equals("NoQuestionsLeft") ||
+                firstTeamStatus.getUnityState().equals("PuzzleFinished")) {
+           return true;
+        }
+
+        TeamStatusDTO secondTeamStatus = _clientManager.getSecondTeam().getStatus();
+        if(secondTeamStatus.getMobileState().equals("NoQuestionsLeft") ||
+                secondTeamStatus.getUnityState().equals("PuzzleFinished")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void gameFinished() {
+        _clientManager.gameFinished(_clientManager.getWinningTeam());
     }
 
 

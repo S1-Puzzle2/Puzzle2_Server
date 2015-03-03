@@ -76,6 +76,10 @@ public class GameLoop implements Runnable {
                     _game.unsetStatusChanged();
                 }
 
+                if(_game.clientHasFinished()) {
+                    _game.gameFinished();
+                }
+
             } catch (InterruptedException e) {
                 //do nothing here
             }
