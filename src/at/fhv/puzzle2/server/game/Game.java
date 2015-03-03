@@ -8,10 +8,8 @@ import at.fhv.puzzle2.communication.application.connection.CommandConnection;
 import at.fhv.puzzle2.logging.Logger;
 import at.fhv.puzzle2.server.SendQueue;
 import at.fhv.puzzle2.server.StatusChangedListener;
-import at.fhv.puzzle2.server.database.Database;
 import at.fhv.puzzle2.server.dto_factory.PuzzleDTOFactory;
 import at.fhv.puzzle2.server.entity.Puzzle;
-import at.fhv.puzzle2.server.entity.manager.PuzzleEntityManager;
 import at.fhv.puzzle2.server.game.state.BeforeGameStartState;
 import at.fhv.puzzle2.server.game.state.GamePausedState;
 import at.fhv.puzzle2.server.game.state.GameRunningState;
@@ -42,10 +40,6 @@ public class Game implements StatusChangedListener {
         _currentState = new BeforeGameStartState(this, _clientManager);
 
         _clientManager.registerStatusChangedListener(this);
-
-        //TODO just for testing
-        PuzzleEntityManager pem = new PuzzleEntityManager(Database.getInstance());
-        setPuzzle(pem.getPuzzleByID(2).get());
     }
 
     public void addStatusChangedListener(Client client) {
